@@ -19,11 +19,11 @@ void main() {
   });
 
   test('change symbols constructor', () {
-    final controller = CurrencyTextFieldController(rightSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
+    final controller = CurrencyTextFieldController(
+        rightSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
 
     expect(controller.thousandSymbol, ",");
     expect(controller.leftSymbol, "RR");
     expect(controller.decimalSymbol, ".");
-
   });
 }

@@ -38,8 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
             controller: _controller,
             keyboardType: TextInputType.number,
           ),
-        )
-    );
+        ));
   }
 
   @override
