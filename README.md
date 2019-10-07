@@ -27,7 +27,7 @@ var controller = CurrencyTextFieldController(leftSymbol: "RR", decimalSymbol: ".
 
 ### Get double value
 
-To get the number value from masked text, use the `numberValue` property:
+To get the number value from masked text, use the `doubleValue` property:
 
 ```dart
 final double val = controller.doubleValue;
