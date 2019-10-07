@@ -2,6 +2,8 @@
 
 A Controller for currency text input
 
+![sample](doc/gif.gif)
+
 ## Usage
 
 Import the library
