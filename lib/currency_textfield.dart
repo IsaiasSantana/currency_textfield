@@ -8,7 +8,7 @@ class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits = 11; // 999.999.999.99
   final int _numberOfDecimals = 2;
 
-  final String _rightSymbol;
+  final String _leftSymbol;
   final String _decimalSymbol;
   final String _thousandSymbol;
   String _previewsText = "";
@@ -18,7 +18,7 @@ class CurrencyTextFieldController extends TextEditingController {
   double _value = 0.0;
 
   double get doubleValue => _value;
-  String get rightSymbol => _rightSymbol;
+  String get leftSymbol => _leftSymbol;
   String get decimalSymbol => _decimalSymbol;
   String get thousandSymbol => _thousandSymbol;
 
@@ -26,7 +26,7 @@ class CurrencyTextFieldController extends TextEditingController {
       {String rightSymbol = "R\$ ",
         String decimalSymbol = ",",
         String thousandSymbol = "."})
-      : _rightSymbol = rightSymbol,
+      : _leftSymbol = rightSymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol {
     addListener(_listener);
@@ -74,7 +74,7 @@ class CurrencyTextFieldController extends TextEditingController {
 
   String _clear({String text}) {
     return text
-        .replaceAll(_rightSymbol, "")
+        .replaceAll(_leftSymbol, "")
         .replaceAll(_thousandSymbol, "")
         .replaceAll(_decimalSymbol, "")
         .trim();
@@ -116,7 +116,7 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    final maskedValue = "$_rightSymbol${_formatToNumber(string: clearText)}";
+    final maskedValue = "$_leftSymbol${_formatToNumber(string: clearText)}";
 
     _previewsText = maskedValue;
     _value = _getDoubleValueFor(string: clearText);

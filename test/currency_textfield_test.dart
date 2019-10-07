@@ -22,7 +22,7 @@ void main() {
     final controller = CurrencyTextFieldController(rightSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
 
     expect(controller.thousandSymbol, ",");
-    expect(controller.rightSymbol, "RR");
+    expect(controller.leftSymbol, "RR");
     expect(controller.decimalSymbol, ".");
 
   });
