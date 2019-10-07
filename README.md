@@ -2,13 +2,33 @@
 
 A Controller for currency text input
 
-## Getting Started
+## Usage
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+Import the library
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+```dart
+import 'package:currency_textfield/currency_textfield.dart';
+```
+
+Create the Controller
+```dart
+CurrencyTextFieldController controller = CurrencyTextFieldController()
+```
+
+### Currency Symbol, Decimal and Thousand separator
+
+It's possible to customize `leftSymbol`, `decimal` and `thousand` separators:
+
+```dart
+var controller = CurrencyTextFieldController(leftSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
+```
+
+### Get double value
+
+To get the number value from masked text, use the `numberValue` property:
+
+```dart
+final double val = controller.doubleValue;
+```
+
+
