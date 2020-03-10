@@ -110,13 +110,19 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    if ((double.parse(clearText) ?? 0.0) == 0.0) {
-      _previewsText = "";
-      text = "";
-      return;
-    }
+    // if ((double.parse(clearText) ?? 0.0) == 0.0) {
+    //   _previewsText = "";
+    //   text = "";
+    //   return;
+    // }
 
     final maskedValue = "$_leftSymbol${_formatToNumber(string: clearText)}";
+
+    if ((double.parse(clearText) ?? 0.0) == 0.0) {
+      _previewsText = maskedValue;
+      text = _previewsText;
+      return;
+    }
 
     _previewsText = maskedValue;
     _value = _getDoubleValueFor(string: clearText);
