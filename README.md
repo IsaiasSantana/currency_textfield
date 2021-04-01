@@ -4,6 +4,10 @@ A Controller for currency text input
 
 ![sample](doc/gif.gif)
 
+## Install
+
+Follow this [guide](https://pub.dev/packages/currency_textfield/install) 
+
 ## Usage
 
 Import the library
