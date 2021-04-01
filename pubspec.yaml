@@ -1,7 +1,6 @@
 name: currency_textfield
 description: A Controller for currency text input.
-version: 1.0.3
-author: Isaías Santana <isds.santana@gmail.com>
+version: 2.0.0
 homepage: https://github.com/IsaiasSantana/currency_textfield
 environment:
   sdk: '>=2.12.0 <3.0.0'
