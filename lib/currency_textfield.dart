@@ -32,58 +32,6 @@ class CurrencyTextFieldController extends TextEditingController {
     addListener(_listener);
   }
 
-  String _getOnlyNumbers({String string}) =>
-      string.replaceAll(_onlyNumbersRegex, "");
-
-  bool _isOnlyNumbers({String string}) {
-    if (string == null || string.isEmpty) return false;
-
-    final clearText = _getOnlyNumbers(string: string);
-
-    return clearText != null ? (clearText.length == string.length) : false;
-  }
-
-  String _applyMaskTo({double value}) {
-    List<String> textRepresentation = value
-        .toStringAsFixed(_numberOfDecimals)
-        .replaceAll(".", "")
-        .split("")
-        .reversed
-        .toList(growable: true);
-
-    textRepresentation.insert(_numberOfDecimals, _decimalSymbol);
-
-    var thousandPositionSymbol = _numberOfDecimals + 4;
-    while (textRepresentation.length > thousandPositionSymbol) {
-      textRepresentation.insert(thousandPositionSymbol, _thousandSymbol);
-      thousandPositionSymbol += 4;
-    }
-
-    return textRepresentation.reversed.join("");
-  }
-
-  double _getDoubleValueFor({String string}) {
-    return (double.parse(string) ?? 0.0) / pow(10, _numberOfDecimals);
-  }
-
-  String _formatToNumber({String string}) {
-    double value = _getDoubleValueFor(string: string);
-
-    return _applyMaskTo(value: value);
-  }
-
-  String _clear({String text}) {
-    return text
-        .replaceAll(_leftSymbol, "")
-        .replaceAll(_thousandSymbol, "")
-        .replaceAll(_decimalSymbol, "")
-        .trim();
-  }
-
-  _setSelectionBy({int offset}) {
-    selection = TextSelection.fromPosition(TextPosition(offset: offset));
-  }
-
   _listener() {
     if (_previewsText == text) {
       if (_clear(text: text).length == _maxDigits) {
@@ -110,7 +58,7 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    if ((double.parse(clearText) ?? 0.0) == 0.0) {
+    if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
       _previewsText = "";
       text = "";
       return;
@@ -123,6 +71,58 @@ class CurrencyTextFieldController extends TextEditingController {
     text = maskedValue;
 
     _setSelectionBy(offset: text.length);
+  }
+
+  String _clear({required String text}) {
+    return text
+        .replaceAll(_leftSymbol, "")
+        .replaceAll(_thousandSymbol, "")
+        .replaceAll(_decimalSymbol, "")
+        .trim();
+  }
+
+  _setSelectionBy({required int offset}) {
+    selection = TextSelection.fromPosition(TextPosition(offset: offset));
+  }
+
+  bool _isOnlyNumbers({String? string}) {
+    if (string == null || string.isEmpty) return false;
+
+    final clearText = _getOnlyNumbers(string: string);
+
+    return clearText != null ? (clearText.length == string.length) : false;
+  }
+
+  String? _getOnlyNumbers({String? string}) =>
+      string == null ? null : string.replaceAll(_onlyNumbersRegex, "");
+
+  String _formatToNumber({required String string}) {
+    double value = _getDoubleValueFor(string: string);
+
+    return _applyMaskTo(value: value);
+  }
+
+  double _getDoubleValueFor({required String string}) {
+    return (double.tryParse(string) ?? 0.0) / pow(10, _numberOfDecimals);
+  }
+
+  String _applyMaskTo({required double value}) {
+    List<String> textRepresentation = value
+        .toStringAsFixed(_numberOfDecimals)
+        .replaceAll(".", "")
+        .split("")
+        .reversed
+        .toList(growable: true);
+
+    textRepresentation.insert(_numberOfDecimals, _decimalSymbol);
+
+    var thousandPositionSymbol = _numberOfDecimals + 4;
+    while (textRepresentation.length > thousandPositionSymbol) {
+      textRepresentation.insert(thousandPositionSymbol, _thousandSymbol);
+      thousandPositionSymbol += 4;
+    }
+
+    return textRepresentation.reversed.join("");
   }
 
   @override
