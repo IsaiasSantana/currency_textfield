@@ -19,8 +19,7 @@ void main() {
   });
 
   test('test_change_symbols_constructor', () {
-    final controller = CurrencyTextFieldController(
-        rightSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
+    final controller = CurrencyTextFieldController(leftSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
 
     expect(controller.thousandSymbol, ",");
     expect(controller.leftSymbol, "RR");
@@ -41,9 +40,7 @@ void main() {
     expect(controller.doubleValue, 0.0);
   });
 
-  test(
-      'test_insert_some_inputs_and_after_tryToInsertAValue_greatherThan_maximumValue',
-      () {
+  test('test_insert_some_inputs_and_after_tryToInsertAValue_greatherThan_maximumValue', () {
     final controller = CurrencyTextFieldController();
     controller.text = "99";
     expect(controller.text, 'R\$ 0,99');
