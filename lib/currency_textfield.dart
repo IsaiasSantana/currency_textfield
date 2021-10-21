@@ -31,12 +31,7 @@ class CurrencyTextFieldController extends TextEditingController {
 
   void _listener() {
     if (_previewsText == text) {
-      // _setSelectionBy(offset: text.length);
-      if (_clear(text: text).length == _maxDigits) {
-        _setSelectionBy(offset: text.length);
-      }
-
-      // _setSelectionBy(offset: text.length);
+      _setSelectionBy(offset: text.length);
       return;
     }
 
