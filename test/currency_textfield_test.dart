@@ -57,4 +57,9 @@ void main() {
     expect(controller.text, '');
     expect(controller.doubleValue, 0.0);
   });
+
+  test('initDouble', () {
+    final controller = CurrencyTextFieldController(initDoubleValue: 19.5);
+    expect(controller.text, 'R\$ 19,50');
+  });
 }

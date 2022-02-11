@@ -22,10 +22,20 @@ class CurrencyTextFieldController extends TextEditingController {
   String get decimalSymbol => _decimalSymbol;
   String get thousandSymbol => _thousandSymbol;
 
-  CurrencyTextFieldController({String leftSymbol = "R\$ ", String decimalSymbol = ",", String thousandSymbol = "."})
+  CurrencyTextFieldController(
+      {String leftSymbol = "R\$ ",
+      String decimalSymbol = ",",
+      String thousandSymbol = ".",
+      double? initDoubleValue})
       : _leftSymbol = leftSymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol {
+    if (initDoubleValue != null) {
+      _previewsText = "$_leftSymbol${_applyMaskTo(value:initDoubleValue)}";
+      _value = initDoubleValue;
+      text = _previewsText;
+      _setSelectionBy(offset: text.length);
+    }
     addListener(_listener);
   }
 
@@ -69,7 +79,11 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   String _clear({required String text}) {
-    return text.replaceAll(_leftSymbol, "").replaceAll(_thousandSymbol, "").replaceAll(_decimalSymbol, "").trim();
+    return text
+        .replaceAll(_leftSymbol, "")
+        .replaceAll(_thousandSymbol, "")
+        .replaceAll(_decimalSymbol, "")
+        .trim();
   }
 
   void _setSelectionBy({required int offset}) {
@@ -84,7 +98,8 @@ class CurrencyTextFieldController extends TextEditingController {
     return clearText != null ? (clearText.length == string.length) : false;
   }
 
-  String? _getOnlyNumbers({String? string}) => string == null ? null : string.replaceAll(_onlyNumbersRegex, "");
+  String? _getOnlyNumbers({String? string}) =>
+      string == null ? null : string.replaceAll(_onlyNumbersRegex, "");
 
   String _formatToNumber({required String string}) {
     double value = _getDoubleValueFor(string: string);
@@ -97,8 +112,12 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   String _applyMaskTo({required double value}) {
-    List<String> textRepresentation =
-        value.toStringAsFixed(_numberOfDecimals).replaceAll(".", "").split("").reversed.toList(growable: true);
+    List<String> textRepresentation = value
+        .toStringAsFixed(_numberOfDecimals)
+        .replaceAll(".", "")
+        .split("")
+        .reversed
+        .toList(growable: true);
 
     textRepresentation.insert(_numberOfDecimals, _decimalSymbol);
 
