@@ -1,37 +1,42 @@
-library currency_textfield;
+library currency_textfield_2;
 
+import 'package:currency_textfield_2/extensions.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
 /// A custom TextEditingController for currency input.
 class CurrencyTextFieldController extends TextEditingController {
-  final int _maxDigits = 11; // 999.999.999.99
-  final int _numberOfDecimals = 2;
+  final int _maxDigits;
+  final int _numberOfDecimals;
 
   final String _leftSymbol;
   final String _decimalSymbol;
   final String _thousandSymbol;
-  String _previewsText = "";
+  String _previewsText = '';
 
-  final _onlyNumbersRegex = new RegExp(r"[^\d]");
+  final _onlyNumbersRegex = RegExp(r'[^\d]');
 
   double _value = 0.0;
 
-  double get doubleValue => _value;
+  double get doubleValue => _value.toPrecision(_numberOfDecimals);
   String get leftSymbol => _leftSymbol;
   String get decimalSymbol => _decimalSymbol;
   String get thousandSymbol => _thousandSymbol;
 
   CurrencyTextFieldController(
-      {String leftSymbol = "R\$ ",
-      String decimalSymbol = ",",
-      String thousandSymbol = ".",
-      double? initDoubleValue})
+      {String leftSymbol = 'R\$ ',
+      String decimalSymbol = ',',
+      String thousandSymbol = '.',
+      double? initDoubleValue,
+      int maxDigits = 11,
+      int numberOfDecimals = 2})
       : _leftSymbol = leftSymbol,
         _decimalSymbol = decimalSymbol,
-        _thousandSymbol = thousandSymbol {
+        _thousandSymbol = thousandSymbol,
+        _maxDigits = maxDigits,
+        _numberOfDecimals = numberOfDecimals {
     if (initDoubleValue != null) {
-      _previewsText = "$_leftSymbol${_applyMaskTo(value:initDoubleValue)}";
+      _previewsText = "$_leftSymbol${_applyMaskTo(value: initDoubleValue)}";
       _value = initDoubleValue;
       text = _previewsText;
       _setSelectionBy(offset: text.length);
@@ -48,8 +53,8 @@ class CurrencyTextFieldController extends TextEditingController {
     final clearText = _clear(text: text);
 
     if (clearText.isEmpty) {
-      _previewsText = "";
-      text = "";
+      _previewsText = '';
+      text = '';
       return;
     }
 
@@ -64,12 +69,12 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
-      _previewsText = "";
-      text = "";
+      _previewsText = '';
+      text = '';
       return;
     }
 
-    final maskedValue = "$_leftSymbol${_formatToNumber(string: clearText)}";
+    final maskedValue = '$_leftSymbol${_formatToNumber(string: clearText)}';
 
     _previewsText = maskedValue;
     _value = _getDoubleValueFor(string: clearText);
@@ -79,10 +84,11 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   String _clear({required String text}) {
+    _value = 0;
     return text
-        .replaceAll(_leftSymbol, "")
-        .replaceAll(_thousandSymbol, "")
-        .replaceAll(_decimalSymbol, "")
+        .replaceAll(_leftSymbol, '')
+        .replaceAll(_thousandSymbol, '')
+        .replaceAll(_decimalSymbol, '')
         .trim();
   }
 
@@ -99,7 +105,7 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   String? _getOnlyNumbers({String? string}) =>
-      string == null ? null : string.replaceAll(_onlyNumbersRegex, "");
+      string?.replaceAll(_onlyNumbersRegex, '');
 
   String _formatToNumber({required String string}) {
     double value = _getDoubleValueFor(string: string);
@@ -114,8 +120,8 @@ class CurrencyTextFieldController extends TextEditingController {
   String _applyMaskTo({required double value}) {
     List<String> textRepresentation = value
         .toStringAsFixed(_numberOfDecimals)
-        .replaceAll(".", "")
-        .split("")
+        .replaceAll('.', '')
+        .split('')
         .reversed
         .toList(growable: true);
 
@@ -127,7 +133,7 @@ class CurrencyTextFieldController extends TextEditingController {
       thousandPositionSymbol += 4;
     }
 
-    return textRepresentation.reversed.join("");
+    return textRepresentation.reversed.join();
   }
 
   @override

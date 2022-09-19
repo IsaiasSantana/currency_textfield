@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:currency_textfield/currency_textfield.dart';
+import 'package:currency_textfield_2/currency_textfield_2.dart';
 
 void main() {
   test('test_add_0_asInput_for_controller', () {

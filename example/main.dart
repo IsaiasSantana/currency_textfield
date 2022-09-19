@@ -1,4 +1,4 @@
-import 'package:currency_textfield/currency_textfield.dart';
+import 'package:currency_textfield_2/currency_textfield_2.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
