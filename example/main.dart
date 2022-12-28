@@ -1,9 +1,13 @@
+// ignore_for_file: avoid_print
+
 import 'package:currency_textfield_2/currency_textfield_2.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -11,18 +15,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo'),
+      home: const MyHomePage(title: 'Flutter Demo'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -34,11 +38,25 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: TextField(
-          controller: _controller,
-          keyboardType: TextInputType.number,
-        ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextField(
+            controller: _controller,
+            keyboardType: TextInputType.number,
+          ),
+          const SizedBox(
+            height: 40,
+          ),
+          MaterialButton(
+            onPressed: () {
+              print(_controller.doubleValue);
+              print(_controller.value);
+              print(_controller.text);
+            },
+            child: const Text('Controller value'),
+          ),
+        ],
       ),
     );
   }

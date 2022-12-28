@@ -1,3 +1,7 @@
+## [2.5.1]
+- Bump decimal and dart versions
+- Added missing type of some variables, different getters of the controller on example and linter on code
+
 ## [2.5.0]
 - Fixed cursor position (tks @benz93chung)
 - Fixed double value not reseting when clearing content from text field

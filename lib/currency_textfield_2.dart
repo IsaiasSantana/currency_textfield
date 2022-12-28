@@ -74,7 +74,7 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    final maskedValue = '$_leftSymbol${_formatToNumber(string: clearText)}';
+    final String maskedValue = '$_leftSymbol${_formatToNumber(string: clearText)}';
 
     _previewsText = maskedValue;
     _value = _getDoubleValueFor(string: clearText);
@@ -108,7 +108,7 @@ class CurrencyTextFieldController extends TextEditingController {
       string?.replaceAll(_onlyNumbersRegex, '');
 
   String _formatToNumber({required String string}) {
-    double value = _getDoubleValueFor(string: string);
+    final double value = _getDoubleValueFor(string: string);
 
     return _applyMaskTo(value: value);
   }
@@ -118,7 +118,7 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   String _applyMaskTo({required double value}) {
-    List<String> textRepresentation = value
+    final List<String> textRepresentation = value
         .toStringAsFixed(_numberOfDecimals)
         .replaceAll('.', '')
         .split('')
@@ -127,7 +127,7 @@ class CurrencyTextFieldController extends TextEditingController {
 
     textRepresentation.insert(_numberOfDecimals, _decimalSymbol);
 
-    var thousandPositionSymbol = _numberOfDecimals + 4;
+    int thousandPositionSymbol = _numberOfDecimals + 4;
     while (textRepresentation.length > thousandPositionSymbol) {
       textRepresentation.insert(thousandPositionSymbol, _thousandSymbol);
       thousandPositionSymbol += 4;
