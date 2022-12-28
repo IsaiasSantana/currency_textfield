@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:currency_textfield_2/currency_textfield_2.dart';
+import 'package:currency_textfield_2_example/input_field.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(const MyApp());
@@ -31,6 +32,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final CurrencyTextFieldController _controller = CurrencyTextFieldController();
+  final CurrencyTextFieldController _controller2 = CurrencyTextFieldController();
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,26 @@ class _MyHomePageState extends State<MyHomePage> {
               print(_controller.value);
               print(_controller.text);
             },
-            child: const Text('Controller value'),
+            child: const Text('Controller1 value'),
+          ),
+          const SizedBox(
+            height: 40,
+          ),
+          BuildInputField(
+            controle: _controller2,
+            tipoTeclado: TextInputType.number,
+            clear: true,
+            mascara: allValues,
+          ),
+          const SizedBox(
+            height: 40,
+          ),
+          MaterialButton(
+            onPressed: () {
+              print(_controller2.doubleValue);
+              print(_controller2.text);
+            },
+            child: const Text('Controller2 value'),
           ),
         ],
       ),
