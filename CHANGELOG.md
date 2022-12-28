@@ -1,3 +1,6 @@
+## [2.5.2]
+- Improved sample with custom input field
+
 ## [2.5.1]
 - Bump decimal and dart versions
 - Added missing type of some variables, different getters of the controller on example and linter on code
