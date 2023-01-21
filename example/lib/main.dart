@@ -12,11 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Currency textfield demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo'),
+      home: const MyHomePage(title: 'Currency Textfield Demo'),
     );
   }
 }
@@ -32,7 +32,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final CurrencyTextFieldController _controller = CurrencyTextFieldController();
-  final CurrencyTextFieldController _controller2 = CurrencyTextFieldController();
+  final CurrencyTextFieldController _controller2 = CurrencyTextFieldController(initDoubleValue: 10);
+  final CurrencyTextFieldController _controller3 = CurrencyTextFieldController(initIntValue: 1000);
 
   @override
   Widget build(BuildContext context) {
@@ -40,44 +41,71 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextField(
-            controller: _controller,
-            keyboardType: TextInputType.number,
+      body: SingleChildScrollView(
+        child: Align(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 40,
+              ),
+              BuildInputField(
+                controle: _controller,
+                tipoTeclado: TextInputType.number,
+                clear: true,
+                mascara: allValues,
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              MaterialButton(
+                onPressed: () {
+                  print(_controller.doubleValue);
+                  print(_controller.value);
+                  print(_controller.text);
+                },
+                child: const Text('Controller1 value'),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              BuildInputField(
+                controle: _controller2,
+                tipoTeclado: TextInputType.number,
+                clear: true,
+                mascara: allValues,
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              MaterialButton(
+                onPressed: () {
+                  print(_controller2.doubleValue);
+                  print(_controller2.text);
+                },
+                child: const Text('Controller2 value'),
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              BuildInputField(
+                controle: _controller3,
+                tipoTeclado: TextInputType.number,
+                clear: true,
+                mascara: allValues,
+              ),
+              const SizedBox(
+                height: 40,
+              ),
+              MaterialButton(
+                onPressed: () {
+                  print(_controller3.intValue);
+                  print(_controller3.text);
+                },
+                child: const Text('Controller3 value'),
+              ),
+            ],
           ),
-          const SizedBox(
-            height: 40,
-          ),
-          MaterialButton(
-            onPressed: () {
-              print(_controller.doubleValue);
-              print(_controller.value);
-              print(_controller.text);
-            },
-            child: const Text('Controller1 value'),
-          ),
-          const SizedBox(
-            height: 40,
-          ),
-          BuildInputField(
-            controle: _controller2,
-            tipoTeclado: TextInputType.number,
-            clear: true,
-            mascara: allValues,
-          ),
-          const SizedBox(
-            height: 40,
-          ),
-          MaterialButton(
-            onPressed: () {
-              print(_controller2.doubleValue);
-              print(_controller2.text);
-            },
-            child: const Text('Controller2 value'),
-          ),
-        ],
+        ),
       ),
     );
   }

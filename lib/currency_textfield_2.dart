@@ -22,15 +22,21 @@ class CurrencyTextFieldController extends TextEditingController {
   String get leftSymbol => _leftSymbol;
   String get decimalSymbol => _decimalSymbol;
   String get thousandSymbol => _thousandSymbol;
+  int get intValue => int.tryParse(_getOnlyNumbers(string: text) ?? '') ?? 0;
 
-  CurrencyTextFieldController(
-      {String leftSymbol = 'R\$ ',
-      String decimalSymbol = ',',
-      String thousandSymbol = '.',
-      double? initDoubleValue,
-      int maxDigits = 11,
-      int numberOfDecimals = 2})
-      : _leftSymbol = leftSymbol,
+  CurrencyTextFieldController({
+    String leftSymbol = 'R\$ ',
+    String decimalSymbol = ',',
+    String thousandSymbol = '.',
+    double? initDoubleValue,
+    int? initIntValue,
+    int maxDigits = 11,
+    int numberOfDecimals = 2,
+  })  : assert(
+          !(initDoubleValue != null && initIntValue != null),
+          "You must set either 'initDoubleValue' or 'initIntValue' parameter",
+        ),
+        _leftSymbol = leftSymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol,
         _maxDigits = maxDigits,
@@ -40,6 +46,10 @@ class CurrencyTextFieldController extends TextEditingController {
       _value = initDoubleValue;
       text = _previewsText;
       _setSelectionBy(offset: text.length);
+    } else if (initIntValue != null) {
+      _previewsText = "$_leftSymbol${_applyMaskTo(value: initIntValue / 100)}";
+      _value = initIntValue / 100;
+      text = _previewsText;
     }
     addListener(_listener);
   }
@@ -74,7 +84,8 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    final String maskedValue = '$_leftSymbol${_formatToNumber(string: clearText)}';
+    final String maskedValue =
+        '$_leftSymbol${_formatToNumber(string: clearText)}';
 
     _previewsText = maskedValue;
     _value = _getDoubleValueFor(string: clearText);
