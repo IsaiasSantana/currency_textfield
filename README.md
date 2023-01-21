@@ -2,9 +2,6 @@
 
 A Controller for currency text input
 
-Forked from https://pub.dev/packages/currency_textfield
-Updated with fixes and new settings
-
 ![sample](doc/gif.gif)
 
 ## Install
@@ -32,12 +29,31 @@ It's possible to customize `leftSymbol`, `decimal` and `thousand` separators:
 var controller = CurrencyTextFieldController(leftSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
 ```
 
-### Get double value
+### Get double value and get int value
 
-To get the number value from controller, use the `doubleValue` property:
+To get the number value from controller, you can use both the `doubleValue` or the `intValue` properties:
 
 ```dart
+//Double value:
 final double val = controller.doubleValue;
 ```
 
+```dart
+//Int value:
+final int val = controller.intValue;
+```
 
+### Initial value
+
+You can initialize the controller using a int or a double, but not both at the same time.
+To make this, just use `initDoubleValue` or `initIntValue`:
+
+```dart
+final CurrencyTextFieldController controller2 = CurrencyTextFieldController(initDoubleValue: 10);
+final CurrencyTextFieldController controller3 = CurrencyTextFieldController(initIntValue: 1000);
+
+final CurrencyTextFieldController controller4 = CurrencyTextFieldController(initIntValue: 1000,initDoubleValue: 10); // this will raise an error!
+```
+
+Forked from https://pub.dev/packages/currency_textfield
+Updated with fixes and new settings
