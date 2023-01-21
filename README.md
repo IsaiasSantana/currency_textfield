@@ -21,9 +21,12 @@ Create the Controller
 CurrencyTextFieldController controller = CurrencyTextFieldController()
 ```
 
+## Parameters and getters
+
+
 ### Currency Symbol, Decimal and Thousand separator
 
-It's possible to customize `leftSymbol`, `decimal` and `thousand` separators:
+It's possible to customize `leftSymbol`, `decimalSymbol` and `thousandSymbol`:
 
 ```dart
 var controller = CurrencyTextFieldController(leftSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
@@ -52,7 +55,8 @@ To make this, just use `initDoubleValue` or `initIntValue`:
 final CurrencyTextFieldController controller2 = CurrencyTextFieldController(initDoubleValue: 10);
 final CurrencyTextFieldController controller3 = CurrencyTextFieldController(initIntValue: 1000);
 
-final CurrencyTextFieldController controller4 = CurrencyTextFieldController(initIntValue: 1000,initDoubleValue: 10); // this will raise an error!
+// this will raise an error!
+final CurrencyTextFieldController controller4 = CurrencyTextFieldController(initIntValue: 1000,initDoubleValue: 10);
 ```
 
 Forked from https://pub.dev/packages/currency_textfield
