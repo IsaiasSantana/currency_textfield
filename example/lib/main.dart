@@ -32,8 +32,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final CurrencyTextFieldController _controller = CurrencyTextFieldController();
-  final CurrencyTextFieldController _controller2 = CurrencyTextFieldController(initDoubleValue: 10);
-  final CurrencyTextFieldController _controller3 = CurrencyTextFieldController(initIntValue: 1000);
+  final CurrencyTextFieldController _controller2 =
+      CurrencyTextFieldController(initDoubleValue: 10);
+  final CurrencyTextFieldController _controller3 =
+      CurrencyTextFieldController(initIntValue: 1000);
 
   @override
   Widget build(BuildContext context) {

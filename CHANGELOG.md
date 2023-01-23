@@ -1,3 +1,7 @@
+## [2.7.1]
+- Improved docs
+- Increased the default maxDigits parameter to 15
+
 ## [2.7.0]
 - Removed decimal dependency in favor of int getter
 - Improved sample with the new int initializer and getter

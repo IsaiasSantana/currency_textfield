@@ -5,6 +5,21 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 /// A custom TextEditingController for currency input.
+///
+/// [leftSymbol] it's your currency symbol.
+///
+/// [decimalSymbol] it's the decimal separator symbol.
+///
+/// [thousandSymbol] it's the thousand separator symbol.
+///
+/// [initDoubleValue] it's the optional initial value in double format.
+///
+/// [initIntValue] it's the optional initial value in int format. It'll be divided by 100 before being presented.
+///
+/// [numberOfDecimals] lets you define the max number of decimal digits to be presented.
+///
+/// [maxDigits] lets you define the max number of digits to be presented.
+///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits;
   final int _numberOfDecimals;
@@ -30,7 +45,7 @@ class CurrencyTextFieldController extends TextEditingController {
     String thousandSymbol = '.',
     double? initDoubleValue,
     int? initIntValue,
-    int maxDigits = 11,
+    int maxDigits = 15,
     int numberOfDecimals = 2,
   })  : assert(
           !(initDoubleValue != null && initIntValue != null),
