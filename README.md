@@ -1,4 +1,6 @@
 # currency_textfield_2
+[![Build Status](https://img.shields.io/cirrus/github/Macacoazul01/currency_textfield_2)](https://cirrus-ci.com/github/Macacoazul01/currency_textfield_2/master)
+[![pub package](https://img.shields.io/pub/v/currency_textfield_2.svg)](https://pub.dev/packages/currency_textfield_2)
 
 A Controller for currency text input
 
