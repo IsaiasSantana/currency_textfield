@@ -1,3 +1,6 @@
+## [2.7.2]
+- Mini fix and cleanup
+
 ## [2.7.1]
 - Improved docs
 - Increased the default maxDigits parameter to 15

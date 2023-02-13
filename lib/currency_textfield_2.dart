@@ -32,6 +32,7 @@ class CurrencyTextFieldController extends TextEditingController {
   final _onlyNumbersRegex = RegExp(r'[^\d]');
 
   double _value = 0.0;
+  //bool _isNegative = false;
 
   double get doubleValue => _value.toPrecision(_numberOfDecimals);
   String get leftSymbol => _leftSymbol;
@@ -47,6 +48,7 @@ class CurrencyTextFieldController extends TextEditingController {
     int? initIntValue,
     int maxDigits = 15,
     int numberOfDecimals = 2,
+    //bool enableNegative = true,
   })  : assert(
           !(initDoubleValue != null && initIntValue != null),
           "You must set either 'initDoubleValue' or 'initIntValue' parameter",
@@ -78,22 +80,19 @@ class CurrencyTextFieldController extends TextEditingController {
     final clearText = _clear(text: text);
 
     if (clearText.isEmpty) {
+      _value = 0;
       _previewsText = '';
       text = '';
       return;
     }
 
-    if (clearText.length > _maxDigits) {
-      text = _previewsText;
-      return;
-    }
-
-    if (!_isOnlyNumbers(string: clearText)) {
+    if (clearText.length > _maxDigits || !_isOnlyNumbers(string: clearText)) {
       text = _previewsText;
       return;
     }
 
     if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
+      _value = 0;
       _previewsText = '';
       text = '';
       return;
@@ -110,7 +109,6 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   String _clear({required String text}) {
-    _value = 0;
     return text
         .replaceAll(_leftSymbol, '')
         .replaceAll(_thousandSymbol, '')

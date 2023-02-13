@@ -1,6 +1,6 @@
 name: currency_textfield_2
 description: A flutter package that implements a Controller for currency text input.
-version: 2.7.1
+version: 2.7.2
 homepage: https://github.com/Macacoazul01/currency_textfield_2
 environment:
   sdk: '>=2.18.6 <3.0.0'
