@@ -1,6 +1,6 @@
-library currency_textfield_2;
+library currency_textfield;
 
-import 'package:currency_textfield_2/extensions.dart';
+import 'package:currency_textfield/extensions.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 

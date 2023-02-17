@@ -41,7 +41,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.0"
-  currency_textfield_2:
+  currency_textfield:
     dependency: "direct dev"
     description:
       path: ".."

@@ -1,6 +1,6 @@
-# currency_textfield_2
+# currency_textfield
 [![Build Status](https://img.shields.io/cirrus/github/Macacoazul01/currency_textfield_2)](https://cirrus-ci.com/github/Macacoazul01/currency_textfield_2/master)
-[![pub package](https://img.shields.io/pub/v/currency_textfield_2.svg)](https://pub.dev/packages/currency_textfield_2)
+[![pub package](https://img.shields.io/pub/v/currency_textfield.svg)](https://pub.dev/packages/currency_textfield)
 
 A Controller for currency text input
 
@@ -8,14 +8,14 @@ A Controller for currency text input
 
 ## Install
 
-Follow this [guide](https://pub.dev/packages/currency_textfield_2/install) 
+Follow this [guide](https://pub.dev/packages/currency_textfield/install) 
 
 ## Usage
 
 Import the library
 
 ```dart
-import 'package:currency_textfield_2/currency_textfield_2.dart';
+import 'package:currency_textfield/currency_textfield.dart';
 ```
 
 Create the Controller
@@ -60,6 +60,3 @@ final CurrencyTextFieldController controller3 = CurrencyTextFieldController(init
 // this will raise an error!
 final CurrencyTextFieldController controller4 = CurrencyTextFieldController(initIntValue: 1000,initDoubleValue: 10);
 ```
-
-Forked from https://pub.dev/packages/currency_textfield
-Updated with fixes and new settings
