@@ -1,3 +1,3 @@
-# currency_textfield_2_example
+# currency_textfield_example
 
-Demonstrates how to use the currency_textfield_2 package.
+Demonstrates how to use the currency_textfield package.
