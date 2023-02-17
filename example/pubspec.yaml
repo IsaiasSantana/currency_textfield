@@ -1,0 +1,20 @@
+name: currency_textfield_2_example
+description: Demonstrates how to use the currency_textfield_2 plugin.
+publish_to: 'none'
+
+environment:
+  sdk: '>=2.18.6 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  currency_textfield_2:
+    path: ../
+flutter:
+  uses-material-design: true

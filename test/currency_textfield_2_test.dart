@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:currency_textfield/currency_textfield.dart';
+import 'package:currency_textfield_2/currency_textfield_2.dart';
 
 void main() {
   test('test_add_0_asInput_for_controller', () {
@@ -20,7 +20,7 @@ void main() {
 
   test('test_change_symbols_constructor', () {
     final controller = CurrencyTextFieldController(
-        rightSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
+        leftSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
 
     expect(controller.thousandSymbol, ",");
     expect(controller.leftSymbol, "RR");
@@ -59,5 +59,16 @@ void main() {
     controller.text = "-19,24.123";
     expect(controller.text, '');
     expect(controller.doubleValue, 0.0);
+  });
+
+  test('initDouble', () {
+    final controller = CurrencyTextFieldController(initDoubleValue: 19.5);
+    expect(controller.text, 'R\$ 19,50');
+  });
+
+  test('initInt', () {
+    final controller = CurrencyTextFieldController(initIntValue: 195);
+    expect(controller.text, 'R\$ 1,95');
+    expect(controller.doubleValue, 1.95);
   });
 }
