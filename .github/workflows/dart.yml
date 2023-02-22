@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
-         with:
+        with:
           channel: 'stable'
       - name: Install dependencies
         run: flutter pub get
