@@ -12,16 +12,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
-
+      - uses: subosito/flutter-action@v2
+         with:
+          channel: 'stable'
       - name: Install dependencies
-        run: dart pub get
-
-      # Uncomment this step to verify the use of 'dart format' on each commit.
-      # - name: Verify formatting
-      #   run: dart format --output=none --set-exit-if-changed .
-      - name: Analyze project source
-        run: dart analyze
-
+        run: flutter pub get
       - name: Run tests
         run: flutter test
