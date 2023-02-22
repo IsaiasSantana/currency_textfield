@@ -1,3 +1,8 @@
+## [2.8.0]
+- Added currencyOnLeft parameter: now you can decide if the symbol will be before or after the number
+- breaking change: because of the new parameter, `leftSymbol` was renamed to `currencySymbol`
+- fix sample warnings and improved docs
+
 ## [2.7.2]
 - Mini fix and cleanup
 

@@ -5,8 +5,7 @@ FilteringTextInputFormatter allValues =
     FilteringTextInputFormatter.allow(RegExp('.*'));
 
 class BuildInputField extends StatefulWidget {
-  BuildInputField(
-      {Key? key,
+  const BuildInputField({Key? key,
       required this.controle,
       this.mascara,
       this.textInputButton = TextInputAction.done,
@@ -28,7 +27,7 @@ class BuildInputField extends StatefulWidget {
       this.alinhamento = TextAlign.start,
       this.disabledColor,
       this.capitalization})
-      : estilo = estilo ?? TextStyle(fontSize: 16),
+      : estilo = estilo ?? const TextStyle(fontSize: 16),
         super(key: key);
   final TextEditingController controle;
   final dynamic mascara;
@@ -51,8 +50,9 @@ class BuildInputField extends StatefulWidget {
   final TextAlign alinhamento;
   final Color? disabledColor;
   final TextCapitalization? capitalization;
+
   @override
-  _BuildInputFieldState createState() => _BuildInputFieldState();
+  State<BuildInputField> createState() => _BuildInputFieldState();
 }
 
 class _BuildInputFieldState extends State<BuildInputField> {
@@ -84,7 +84,7 @@ class _BuildInputFieldState extends State<BuildInputField> {
           decoration: InputDecoration(
             labelText: widget.mostrarHint ? widget.hint : null,
             hintText: widget.hint,
-            hintStyle: TextStyle(fontSize: 16, color: Colors.grey),
+            hintStyle: const TextStyle(fontSize: 16, color: Colors.grey),
             fillColor: Colors.grey[50],
             filled: true,
             focusedBorder: OutlineInputBorder(
@@ -115,7 +115,7 @@ class _BuildInputFieldState extends State<BuildInputField> {
                     child: InkWell(
                       canRequestFocus: false,
                       borderRadius: const BorderRadius.all(Radius.circular(24)),
-                      child: Icon(Icons.clear, color: Colors.grey, size: 20),
+                      child: const Icon(Icons.clear, color: Colors.grey, size: 20),
                       onTap: () {
                         widget.controle.clear();
                         if (widget.mascara != null) {

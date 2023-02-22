@@ -6,66 +6,85 @@ import 'dart:math';
 
 /// A custom TextEditingController for currency input.
 ///
-/// [leftSymbol] it's your currency symbol.
+/// `currencySymbol` is your currency symbol.
 ///
-/// [decimalSymbol] it's the decimal separator symbol.
+/// Default `R\$`
 ///
-/// [thousandSymbol] it's the thousand separator symbol.
+/// `decimalSymbol` is the decimal separator symbol.
 ///
-/// [initDoubleValue] it's the optional initial value in double format.
+/// Default `,`
 ///
-/// [initIntValue] it's the optional initial value in int format. It'll be divided by 100 before being presented.
+/// `thousandSymbol` is the thousand separator symbol.
 ///
-/// [numberOfDecimals] lets you define the max number of decimal digits to be presented.
+/// @Default `.`
 ///
-/// [maxDigits] lets you define the max number of digits to be presented.
+/// `initDoubleValue` is the optional initial value in double format.
+///
+/// Default `null`
+///
+/// `initIntValue` is the optional initial value in int format. It'll be divided by 100 before being presented.
+///
+/// Default `null`
+///
+/// `numberOfDecimals` lets you define the max number of decimal digits to be presented.
+///
+/// Default `2`
+///
+/// `maxDigits` lets you define the max number of digits to be presented.
+///
+/// Default `15`
+///
+/// `currencyOnLeft` lets you define if the symbol will be on left or right of the number.
+///
+/// Default `true`
 ///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits;
   final int _numberOfDecimals;
-
-  final String _leftSymbol;
+  final String _currencySymbol;
   final String _decimalSymbol;
   final String _thousandSymbol;
+  final bool _currencyOnLeft;
   String _previewsText = '';
+  double _value = 0.0;
 
   final _onlyNumbersRegex = RegExp(r'[^\d]');
-
-  double _value = 0.0;
   //bool _isNegative = false;
 
   double get doubleValue => _value.toPrecision(_numberOfDecimals);
-  String get leftSymbol => _leftSymbol;
+  String get currencySymbol => _currencySymbol;
   String get decimalSymbol => _decimalSymbol;
   String get thousandSymbol => _thousandSymbol;
   int get intValue => int.tryParse(_getOnlyNumbers(string: text) ?? '') ?? 0;
 
   CurrencyTextFieldController({
-    String leftSymbol = 'R\$ ',
+    String currencySymbol = 'R\$',
     String decimalSymbol = ',',
     String thousandSymbol = '.',
     double? initDoubleValue,
     int? initIntValue,
     int maxDigits = 15,
     int numberOfDecimals = 2,
+    bool currencyOnLeft = true,
     //bool enableNegative = true,
   })  : assert(
           !(initDoubleValue != null && initIntValue != null),
           "You must set either 'initDoubleValue' or 'initIntValue' parameter",
         ),
-        _leftSymbol = leftSymbol,
+        _currencySymbol = currencySymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol,
         _maxDigits = maxDigits,
-        _numberOfDecimals = numberOfDecimals {
+        _numberOfDecimals = numberOfDecimals,
+        _currencyOnLeft = currencyOnLeft {
     if (initDoubleValue != null) {
-      _previewsText = "$_leftSymbol${_applyMaskTo(value: initDoubleValue)}";
       _value = initDoubleValue;
+      _previewsText = _composeCurrency(_applyMaskTo(value: _value));
       text = _previewsText;
       _setSelectionBy(offset: text.length);
     } else if (initIntValue != null) {
-      _previewsText = "$_leftSymbol${_applyMaskTo(value: initIntValue / 100)}";
       _value = initIntValue / 100;
+      _previewsText = _composeCurrency(_applyMaskTo(value: _value));
       text = _previewsText;
     }
     addListener(_listener);
@@ -98,11 +117,12 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    final String maskedValue =
-        '$_leftSymbol${_formatToNumber(string: clearText)}';
+    _value = _getDoubleValueFor(string: clearText);
+
+    final String maskedValue = _composeCurrency(_applyMaskTo(value: _value));
 
     _previewsText = maskedValue;
-    _value = _getDoubleValueFor(string: clearText);
+
     text = maskedValue;
 
     _setSelectionBy(offset: text.length);
@@ -110,7 +130,7 @@ class CurrencyTextFieldController extends TextEditingController {
 
   String _clear({required String text}) {
     return text
-        .replaceAll(_leftSymbol, '')
+        .replaceAll(_currencySymbol, '')
         .replaceAll(_thousandSymbol, '')
         .replaceAll(_decimalSymbol, '')
         .trim();
@@ -131,14 +151,14 @@ class CurrencyTextFieldController extends TextEditingController {
   String? _getOnlyNumbers({String? string}) =>
       string?.replaceAll(_onlyNumbersRegex, '');
 
-  String _formatToNumber({required String string}) {
-    final double value = _getDoubleValueFor(string: string);
-
-    return _applyMaskTo(value: value);
-  }
-
   double _getDoubleValueFor({required String string}) {
     return (double.tryParse(string) ?? 0.0) / pow(10, _numberOfDecimals);
+  }
+
+  String _composeCurrency(String value) {
+    return _currencyOnLeft
+        ? '$_currencySymbol $value'
+        : '$value $_currencySymbol';
   }
 
   String _applyMaskTo({required double value}) {

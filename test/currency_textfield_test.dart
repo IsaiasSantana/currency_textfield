@@ -20,10 +20,10 @@ void main() {
 
   test('test_change_symbols_constructor', () {
     final controller = CurrencyTextFieldController(
-        leftSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
+        currencySymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
 
     expect(controller.thousandSymbol, ",");
-    expect(controller.leftSymbol, "RR");
+    expect(controller.currencySymbol, "RR");
     expect(controller.decimalSymbol, ".");
   });
 
@@ -70,5 +70,10 @@ void main() {
     final controller = CurrencyTextFieldController(initIntValue: 195);
     expect(controller.text, 'R\$ 1,95');
     expect(controller.doubleValue, 1.95);
+  });
+
+  test('positioned_symbol', () {
+    final controller = CurrencyTextFieldController(initIntValue: 195,currencyOnLeft: false);
+    expect(controller.text, '1,95 R\$');
   });
 }

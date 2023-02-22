@@ -28,10 +28,10 @@ CurrencyTextFieldController controller = CurrencyTextFieldController()
 
 ### Currency Symbol, Decimal and Thousand separator
 
-It's possible to customize `leftSymbol`, `decimalSymbol` and `thousandSymbol`:
+It's possible to customize `currencySymbol`, `decimalSymbol` and `thousandSymbol`:
 
 ```dart
-var controller = CurrencyTextFieldController(leftSymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
+var controller = CurrencyTextFieldController(currencySymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
 ```
 
 ### Get double value and get int value
@@ -59,4 +59,17 @@ final CurrencyTextFieldController controller3 = CurrencyTextFieldController(init
 
 // this will raise an error!
 final CurrencyTextFieldController controller4 = CurrencyTextFieldController(initIntValue: 1000,initDoubleValue: 10);
+```
+
+### Position of the symbol
+
+You can decide if the symbol will be before or after the number.
+To make this, just use `currencyOnLeft`:
+
+```dart
+// default with the currency before the number
+final CurrencyTextFieldController controller = CurrencyTextFieldController();
+
+// currency after the number
+final CurrencyTextFieldController controller2 = CurrencyTextFieldController(currencyOnLeft: false);
 ```

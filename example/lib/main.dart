@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final CurrencyTextFieldController _controller2 =
       CurrencyTextFieldController(initDoubleValue: 10);
   final CurrencyTextFieldController _controller3 =
-      CurrencyTextFieldController(initIntValue: 1000);
+      CurrencyTextFieldController(initIntValue: 1000,currencyOnLeft: false);
 
   @override
   Widget build(BuildContext context) {
