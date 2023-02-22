@@ -37,7 +37,11 @@ import 'dart:math';
 /// `currencyOnLeft` lets you define if the symbol will be on left or right of the number.
 ///
 /// Default `true`
+/// 
+/// `enableNegative` lets you define if the user can set negative values.
 ///
+/// Default `true`
+/// 
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits;
   final int _numberOfDecimals;
@@ -45,17 +49,20 @@ class CurrencyTextFieldController extends TextEditingController {
   final String _decimalSymbol;
   final String _thousandSymbol;
   final bool _currencyOnLeft;
+  final bool _enableNegative;
   String _previewsText = '';
   double _value = 0.0;
 
   final _onlyNumbersRegex = RegExp(r'[^\d]');
-  //bool _isNegative = false;
+  bool _isNegative = false;
 
   double get doubleValue => _value.toPrecision(_numberOfDecimals);
   String get currencySymbol => _currencySymbol;
   String get decimalSymbol => _decimalSymbol;
   String get thousandSymbol => _thousandSymbol;
-  int get intValue => int.tryParse(_getOnlyNumbers(string: text) ?? '') ?? 0;
+  int get intValue =>
+      (_isNegative ? -1 : 1) *
+      (int.tryParse(_getOnlyNumbers(string: text) ?? '') ?? 0);
 
   CurrencyTextFieldController({
     String currencySymbol = 'R\$',
@@ -66,7 +73,7 @@ class CurrencyTextFieldController extends TextEditingController {
     int maxDigits = 15,
     int numberOfDecimals = 2,
     bool currencyOnLeft = true,
-    //bool enableNegative = true,
+    bool enableNegative = true,
   })  : assert(
           !(initDoubleValue != null && initIntValue != null),
           "You must set either 'initDoubleValue' or 'initIntValue' parameter",
@@ -76,16 +83,14 @@ class CurrencyTextFieldController extends TextEditingController {
         _thousandSymbol = thousandSymbol,
         _maxDigits = maxDigits,
         _numberOfDecimals = numberOfDecimals,
-        _currencyOnLeft = currencyOnLeft {
+        _currencyOnLeft = currencyOnLeft,
+        _enableNegative = enableNegative {
     if (initDoubleValue != null) {
       _value = initDoubleValue;
-      _previewsText = _composeCurrency(_applyMaskTo(value: _value));
-      text = _previewsText;
-      _setSelectionBy(offset: text.length);
+      initValue();
     } else if (initIntValue != null) {
       _value = initIntValue / 100;
-      _previewsText = _composeCurrency(_applyMaskTo(value: _value));
-      text = _previewsText;
+      initValue();
     }
     addListener(_listener);
   }
@@ -96,24 +101,22 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    final clearText = _clear(text: text);
+    checkNegative();
+
+    final clearText = (_getOnlyNumbers(string: text) ?? '').trim();
 
     if (clearText.isEmpty) {
-      _value = 0;
-      _previewsText = '';
-      text = '';
+      zeroValue();
       return;
     }
 
-    if (clearText.length > _maxDigits || !_isOnlyNumbers(string: clearText)) {
+    if (clearText.length > _maxDigits) {
       text = _previewsText;
       return;
     }
 
     if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
-      _value = 0;
-      _previewsText = '';
-      text = '';
+      zeroValue();
       return;
     }
 
@@ -128,43 +131,62 @@ class CurrencyTextFieldController extends TextEditingController {
     _setSelectionBy(offset: text.length);
   }
 
-  String _clear({required String text}) {
-    return text
-        .replaceAll(_currencySymbol, '')
-        .replaceAll(_thousandSymbol, '')
-        .replaceAll(_decimalSymbol, '')
-        .trim();
+  void initValue() {
+    if (_value < 0) {
+      if (!_enableNegative) {
+        _value = _value *-1;
+      } else {
+        _isNegative = true;
+      }
+    }
+    _previewsText = _composeCurrency(_applyMaskTo(value: _value));
+    text = _previewsText;
+    _setSelectionBy(offset: text.length);
+  }
+
+  void checkNegative() {
+    if (_enableNegative) {
+      _isNegative = text.startsWith('-');
+    } else {
+      _isNegative = false;
+    }
   }
 
   void _setSelectionBy({required int offset}) {
     selection = TextSelection.fromPosition(TextPosition(offset: offset));
   }
 
-  bool _isOnlyNumbers({String? string}) {
-    if (string == null || string.isEmpty) return false;
-
-    final clearText = _getOnlyNumbers(string: string);
-
-    return clearText != null ? (clearText.length == string.length) : false;
+  void zeroValue() {
+    _value = 0;
+    _previewsText = _negativeSign();
+    text = _previewsText;
   }
 
   String? _getOnlyNumbers({String? string}) =>
       string?.replaceAll(_onlyNumbersRegex, '');
 
   double _getDoubleValueFor({required String string}) {
-    return (double.tryParse(string) ?? 0.0) / pow(10, _numberOfDecimals);
+    return (_isNegative ? -1 : 1) *
+        (double.tryParse(string) ?? 0.0) /
+        pow(10, _numberOfDecimals);
   }
 
   String _composeCurrency(String value) {
-    return _currencyOnLeft
-        ? '$_currencySymbol $value'
-        : '$value $_currencySymbol';
+    return _negativeSign() +
+        (_currencyOnLeft
+            ? '$_currencySymbol $value'
+            : '$value $_currencySymbol');
+  }
+
+  String _negativeSign() {
+    return (_isNegative ? '-' : '');
   }
 
   String _applyMaskTo({required double value}) {
     final List<String> textRepresentation = value
         .toStringAsFixed(_numberOfDecimals)
         .replaceAll('.', '')
+        .replaceAll('-', '')
         .split('')
         .reversed
         .toList(growable: true);

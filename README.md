@@ -73,3 +73,6 @@ final CurrencyTextFieldController controller = CurrencyTextFieldController();
 // currency after the number
 final CurrencyTextFieldController controller2 = CurrencyTextFieldController(currencyOnLeft: false);
 ```
+
+### Block the user from setting negative numbers
+Just set `enableNegative` to false
