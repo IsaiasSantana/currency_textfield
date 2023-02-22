@@ -36,7 +36,7 @@ void main() {
 
   test('test_insert_input_greatherThan_maximumValue', () {
     final controller = CurrencyTextFieldController();
-    controller.text = "99999999999999";
+    controller.text = "9999999999999999";
     expect(controller.text, '');
     expect(controller.doubleValue, 0.0);
   });
@@ -49,7 +49,7 @@ void main() {
     expect(controller.text, 'R\$ 0,99');
     expect(controller.doubleValue, 0.99);
 
-    controller.text = "99999999999999";
+    controller.text = "9999999999999999";
     expect(controller.text, 'R\$ 0,99');
     expect(controller.doubleValue, 0.99);
   });
@@ -57,8 +57,11 @@ void main() {
   test('test_insert_numbers_with_symbols', () {
     final controller = CurrencyTextFieldController();
     controller.text = "-19,24.123";
-    expect(controller.text, '');
-    expect(controller.doubleValue, 0.0);
+    expect(controller.text, '-R\$ 19.241,23');
+    expect(controller.doubleValue, -19241.23);
+
+    controller.text = "-19?24.123";
+    expect(controller.text, '-R\$ 19.241,23');
   });
 
   test('initDouble', () {
