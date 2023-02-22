@@ -1,6 +1,6 @@
 library currency_textfield;
 
-import 'package:currency_textfield/extensions.dart';
+import '/extensions.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -37,11 +37,11 @@ import 'dart:math';
 /// `currencyOnLeft` lets you define if the symbol will be on left or right of the number.
 ///
 /// Default `true`
-/// 
+///
 /// `enableNegative` lets you define if the user can set negative values.
 ///
 /// Default `true`
-/// 
+///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits;
   final int _numberOfDecimals;
@@ -103,7 +103,18 @@ class CurrencyTextFieldController extends TextEditingController {
 
     checkNegative();
 
-    final clearText = (_getOnlyNumbers(string: text) ?? '').trim();
+    late String clearText;
+
+    if (_currencyOnLeft) {
+      clearText = (_getOnlyNumbers(string: text) ?? '').trim();
+    } else {
+      if (text.lastChars(1).isNumeric()) {
+        clearText = (_getOnlyNumbers(string: text) ?? '').trim();
+      } else {
+        clearText =
+            (_getOnlyNumbers(string: text) ?? '').trim().allBeforeLastN(1);
+      }
+    }
 
     if (clearText.isEmpty) {
       zeroValue();
@@ -134,7 +145,7 @@ class CurrencyTextFieldController extends TextEditingController {
   void initValue() {
     if (_value < 0) {
       if (!_enableNegative) {
-        _value = _value *-1;
+        _value = _value * -1;
       } else {
         _isNegative = true;
       }

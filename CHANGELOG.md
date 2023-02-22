@@ -1,9 +1,12 @@
+## [3.0.0]
+- Fixed a [issue] that blocked deleting characters one by one when `currencyOnLeft` = false (https://github.com/IsaiasSantana/currency_textfield/issues/13)
+
 ## [2.9.0]
 - Added the possibility to have negative numbers
 - New `enableNegative` parameter to block user from setting negative numbers
 
 ## [2.8.0]
-- Added currencyOnLeft parameter: now you can decide if the symbol will be before or after the number
+- Added `currencyOnLeft` parameter: now you can decide if the symbol will be before or after the number
 - breaking change: because of the new parameter, `leftSymbol` was renamed to `currencySymbol`
 - fix sample warnings and improved docs
 
