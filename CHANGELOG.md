@@ -1,5 +1,8 @@
+## [3.1.0]
+- Added `currencySeparator` that lets you define the separator between the symbol and the value.
+
 ## [3.0.0]
-- Fixed a [issue] that blocked deleting characters one by one when `currencyOnLeft` = false (https://github.com/IsaiasSantana/currency_textfield/issues/13)
+- Fixed a [issue](https://github.com/IsaiasSantana/currency_textfield/issues/13) that blocked deleting characters one by one when `currencyOnLeft` = false
 
 ## [2.9.0]
 - Added the possibility to have negative numbers

@@ -34,7 +34,7 @@ import 'dart:math';
 ///
 /// Default `15`
 ///
-/// `currencyOnLeft` lets you define if the symbol will be on left or right of the number.
+/// `currencyOnLeft` lets you define if the symbol will be on left or right of the value.
 ///
 /// Default `true`
 ///
@@ -42,14 +42,17 @@ import 'dart:math';
 ///
 /// Default `true`
 ///
+/// `currencySeparator` lets you define the separator between the symbol and the value.
+///
+/// Default ` `
+///
 class CurrencyTextFieldController extends TextEditingController {
-  final int _maxDigits;
-  final int _numberOfDecimals;
-  final String _currencySymbol;
-  final String _decimalSymbol;
-  final String _thousandSymbol;
-  final bool _currencyOnLeft;
-  final bool _enableNegative;
+  final int _maxDigits, _numberOfDecimals;
+  final String _currencySymbol,
+      _decimalSymbol,
+      _thousandSymbol,
+      _currencySeparator;
+  final bool _currencyOnLeft, _enableNegative;
   String _previewsText = '';
   double _value = 0.0;
 
@@ -68,6 +71,7 @@ class CurrencyTextFieldController extends TextEditingController {
     String currencySymbol = 'R\$',
     String decimalSymbol = ',',
     String thousandSymbol = '.',
+    String currencySeparator = ' ',
     double? initDoubleValue,
     int? initIntValue,
     int maxDigits = 15,
@@ -81,6 +85,7 @@ class CurrencyTextFieldController extends TextEditingController {
         _currencySymbol = currencySymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol,
+        _currencySeparator = currencySeparator,
         _maxDigits = maxDigits,
         _numberOfDecimals = numberOfDecimals,
         _currencyOnLeft = currencyOnLeft,
@@ -183,10 +188,9 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   String _composeCurrency(String value) {
-    return _negativeSign() +
-        (_currencyOnLeft
-            ? '$_currencySymbol $value'
-            : '$value $_currencySymbol');
+    return _currencyOnLeft
+        ? '${_negativeSign()}$_currencySymbol$_currencySeparator$value'
+        : '${_negativeSign()}$value$_currencySeparator$_currencySymbol';
   }
 
   String _negativeSign() {

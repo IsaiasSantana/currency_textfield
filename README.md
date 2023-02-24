@@ -61,7 +61,7 @@ final CurrencyTextFieldController controller3 = CurrencyTextFieldController(init
 final CurrencyTextFieldController controller4 = CurrencyTextFieldController(initIntValue: 1000,initDoubleValue: 10);
 ```
 
-### Position of the symbol
+### Position of the symbol and separator
 
 You can decide if the symbol will be before or after the number.
 To make this, just use `currencyOnLeft`:
@@ -72,6 +72,13 @@ final CurrencyTextFieldController controller = CurrencyTextFieldController();
 
 // currency after the number
 final CurrencyTextFieldController controller2 = CurrencyTextFieldController(currencyOnLeft: false);
+```
+
+And also  define the separator between the symbol and the value with `currencySeparator`:
+
+```dart
+// the default value is a single space
+final CurrencyTextFieldController controller = CurrencyTextFieldController(currencySeparator: ' -> ');
 ```
 
 ### Block the user from setting negative numbers
