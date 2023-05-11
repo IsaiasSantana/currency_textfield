@@ -1,3 +1,6 @@
+## [4.0.0]
+- Bumped to dart 3
+
 ## [3.1.0]
 - Added `currencySeparator` that lets you define the separator between the symbol and the value.
 
