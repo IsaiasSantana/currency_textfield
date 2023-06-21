@@ -9,8 +9,10 @@ extension Precision on double {
 extension E on String {
   /// get last n chars from string.
   String lastChars(int n) => substring(length - n);
+
   /// check if string is a number.
   bool isNumeric() => double.tryParse(this) != null;
+
   /// get all characters from string before last n characters.
   String allBeforeLastN(int n) => substring(0, length - n);
 }

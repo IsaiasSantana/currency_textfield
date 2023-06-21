@@ -76,13 +76,15 @@ void main() {
   });
 
   test('positioned_symbol', () {
-    final controller = CurrencyTextFieldController(initIntValue: 195,currencyOnLeft: false);
+    final controller =
+        CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false);
     expect(controller.text, '1,95 R\$');
   });
 
   test('negative_and_block', () {
     final controller = CurrencyTextFieldController(initIntValue: -195);
-    final controller2 = CurrencyTextFieldController(initIntValue: -195,enableNegative: false);
+    final controller2 =
+        CurrencyTextFieldController(initIntValue: -195, enableNegative: false);
     expect(controller.text, '-R\$ 1,95');
     expect(controller2.text, 'R\$ 1,95');
   });

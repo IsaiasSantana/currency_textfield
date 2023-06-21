@@ -5,7 +5,8 @@ FilteringTextInputFormatter allValues =
     FilteringTextInputFormatter.allow(RegExp('.*'));
 
 class BuildInputField extends StatefulWidget {
-  const BuildInputField({Key? key,
+  const BuildInputField(
+      {Key? key,
       required this.controle,
       this.mascara,
       this.textInputButton = TextInputAction.done,
@@ -115,7 +116,8 @@ class _BuildInputFieldState extends State<BuildInputField> {
                     child: InkWell(
                       canRequestFocus: false,
                       borderRadius: const BorderRadius.all(Radius.circular(24)),
-                      child: const Icon(Icons.clear, color: Colors.grey, size: 20),
+                      child:
+                          const Icon(Icons.clear, color: Colors.grey, size: 20),
                       onTap: () {
                         widget.controle.clear();
                         if (widget.mascara != null) {
