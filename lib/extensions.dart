@@ -1,4 +1,4 @@
-/// Extensions file
+// Extensions file
 
 /// Extension to reduce the decimal part of the double to n places
 extension Precision on double {
