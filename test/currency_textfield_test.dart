@@ -88,4 +88,23 @@ void main() {
     expect(controller.text, '-R\$ 1,95');
     expect(controller2.text, 'R\$ 1,95');
   });
+
+  test('force_value', () {
+    final controller = CurrencyTextFieldController(initIntValue: 195);
+    controller.forceValue(initIntValue: 100);
+    expect(controller.text, 'R\$ 1,00');
+    controller.forceValue(initDoubleValue: 100);
+    expect(controller.text, 'R\$ 100,00');
+  });
+
+  test('get_text_without_currency', () {
+    final controller = CurrencyTextFieldController(initIntValue: 195);
+    final controller2 = CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false);
+    final controller3 = CurrencyTextFieldController(initDoubleValue: 195,currencySymbol: 'test',currencySeparator: ' e ');
+    final controller4 = CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false,currencySymbol: '\$',currencySeparator: '->',decimalSymbol: '.');
+    expect(controller.textWithoutCurrencySymbol, '1,95');
+    expect(controller2.textWithoutCurrencySymbol, '1,95');
+    expect(controller3.textWithoutCurrencySymbol, '195,00');
+    expect(controller4.textWithoutCurrencySymbol, '1.95');
+  });
 }
