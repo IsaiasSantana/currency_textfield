@@ -105,6 +105,29 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 child: const Text('Controller3 value'),
               ),
+              const SizedBox(
+                height: 40,
+              ),
+              MaterialButton(
+                onPressed: () {
+                  print(
+                      'initial value: ${_controller3.text}, initial double value: ${_controller3.doubleValue}');
+                  print('trying to change controller.text to 4000');
+                  _controller.text = '4000';
+                  print(
+                      'text value: ${_controller3.text}, double value: ${_controller3.doubleValue}');
+                  print('trying to change controller.text to R\$ 4000.00');
+                  _controller.text = 'R\$ 4000.00';
+                  print(
+                      'text value: ${_controller3.text}, double value: ${_controller3.doubleValue}');
+                  print(
+                      'changing controller.text using _controller3.forceValue() function');
+                  _controller3.forceValue(initDoubleValue: 300);
+                  print(
+                      'final value: ${_controller3.text}, final double value: ${_controller3.doubleValue}');
+                },
+                child: const Text('Force controller 3 value'),
+              ),
             ],
           ),
         ),

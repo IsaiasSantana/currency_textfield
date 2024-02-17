@@ -1,3 +1,10 @@
+## [4.1.0] - 2024-02-16
+- Fixed incorrect handling of negative values.
+- Updated android sample and added web.
+- Added `forceValue()` function to the controller. Now it is possible to change the controller's value from outside the textfield. 
+- `checkNegative()` function now returns true if number is negative and false if it is positive. 
+- Bumped flutter_lints to 3.0.1
+
 ## [4.0.0]
 - Bumped to dart 3
 

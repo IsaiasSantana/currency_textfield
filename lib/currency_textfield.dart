@@ -78,11 +78,7 @@ class CurrencyTextFieldController extends TextEditingController {
     int numberOfDecimals = 2,
     bool currencyOnLeft = true,
     bool enableNegative = true,
-  })  : assert(
-          !(initDoubleValue != null && initIntValue != null),
-          "You must set either 'initDoubleValue' or 'initIntValue' parameter",
-        ),
-        _currencySymbol = currencySymbol,
+  })  : _currencySymbol = currencySymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol,
         _currencySeparator = currencySeparator,
@@ -90,13 +86,7 @@ class CurrencyTextFieldController extends TextEditingController {
         _numberOfDecimals = numberOfDecimals,
         _currencyOnLeft = currencyOnLeft,
         _enableNegative = enableNegative {
-    if (initDoubleValue != null) {
-      _value = initDoubleValue;
-      initValue();
-    } else if (initIntValue != null) {
-      _value = initIntValue / 100;
-      initValue();
-    }
+    forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
     addListener(_listener);
   }
 
@@ -122,7 +112,7 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     if (clearText.isEmpty) {
-      zeroValue();
+      _zeroValue();
       return;
     }
 
@@ -132,7 +122,7 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
-      zeroValue();
+      _zeroValue();
       return;
     }
 
@@ -147,32 +137,50 @@ class CurrencyTextFieldController extends TextEditingController {
     _setSelectionBy(offset: text.length);
   }
 
-  void initValue() {
+  ///Force a value to the text controller. 
+  void forceValue({double? initDoubleValue, int? initIntValue}) {
+    assert(!(initDoubleValue != null && initIntValue != null),
+        "You must set either 'initDoubleValue' or 'initIntValue' parameter.");
+    if (initDoubleValue != null) {
+      _value = initDoubleValue;
+      _updateValue();
+    } else if (initIntValue != null) {
+      _value = initIntValue / 100;
+      _updateValue();
+    }
+  }
+
+  void _updateValue() {
     if (_value < 0) {
       if (!_enableNegative) {
         _value = _value * -1;
       } else {
         _isNegative = true;
       }
+    } else {
+      _isNegative = false;
     }
     _previewsText = _composeCurrency(_applyMaskTo(value: _value));
     text = _previewsText;
     _setSelectionBy(offset: text.length);
   }
 
-  void checkNegative() {
+  ///check if the value is negative.
+  bool checkNegative() {
     if (_enableNegative) {
       _isNegative = text.startsWith('-');
     } else {
       _isNegative = false;
     }
+    return _isNegative;
   }
 
   void _setSelectionBy({required int offset}) {
     selection = TextSelection.fromPosition(TextPosition(offset: offset));
   }
 
-  void zeroValue() {
+  ///force the sign when `_value = 0`
+  void _zeroValue() {
     _value = 0;
     _previewsText = _negativeSign();
     text = _previewsText;
