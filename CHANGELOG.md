@@ -1,3 +1,7 @@
+## [4.2.0] - 2024-02-17
+- Added `textWithoutCurrencySymbol` getter to the controller. Now it is possible to return the number part of the controller as a String. Good to avoid round errors and to use with decimal package. 
+- Readme improvements.
+
 ## [4.1.0] - 2024-02-16
 - Fixed incorrect handling of negative values.
 - Updated android sample and added web.

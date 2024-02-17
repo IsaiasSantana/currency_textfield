@@ -53,10 +53,11 @@ class CurrencyTextFieldController extends TextEditingController {
       _thousandSymbol,
       _currencySeparator;
   final bool _currencyOnLeft, _enableNegative;
+  final _onlyNumbersRegex = RegExp(r'[^\d]');
+  late final String _symbolSeparator;
+  
   String _previewsText = '';
   double _value = 0.0;
-
-  final _onlyNumbersRegex = RegExp(r'[^\d]');
   bool _isNegative = false;
 
   double get doubleValue => _value.toPrecision(_numberOfDecimals);
@@ -66,6 +67,8 @@ class CurrencyTextFieldController extends TextEditingController {
   int get intValue =>
       (_isNegative ? -1 : 1) *
       (int.tryParse(_getOnlyNumbers(string: text) ?? '') ?? 0);
+  String get textWithoutCurrencySymbol =>
+      text.replaceFirst(_symbolSeparator, '');
 
   CurrencyTextFieldController({
     String currencySymbol = 'R\$',
@@ -86,6 +89,9 @@ class CurrencyTextFieldController extends TextEditingController {
         _numberOfDecimals = numberOfDecimals,
         _currencyOnLeft = currencyOnLeft,
         _enableNegative = enableNegative {
+    _symbolSeparator = currencyOnLeft
+        ? (_currencySymbol + _currencySeparator)
+        : (_currencySeparator + _currencySymbol);
     forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
     addListener(_listener);
   }
@@ -197,8 +203,8 @@ class CurrencyTextFieldController extends TextEditingController {
 
   String _composeCurrency(String value) {
     return _currencyOnLeft
-        ? '${_negativeSign()}$_currencySymbol$_currencySeparator$value'
-        : '${_negativeSign()}$value$_currencySeparator$_currencySymbol';
+        ? '${_negativeSign()}$_symbolSeparator$value'
+        : '${_negativeSign()}$value$_symbolSeparator';
   }
 
   String _negativeSign() {

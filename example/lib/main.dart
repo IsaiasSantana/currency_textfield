@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   print(_controller.doubleValue);
                   print(_controller.value);
                   print(_controller.text);
+                  print(_controller.textWithoutCurrencySymbol);
                 },
                 child: const Text('Controller1 value'),
               ),

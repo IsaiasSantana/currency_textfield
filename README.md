@@ -34,7 +34,7 @@ It's possible to customize `currencySymbol`, `decimalSymbol` and `thousandSymbol
 var controller = CurrencyTextFieldController(currencySymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
 ```
 
-### Get double value and get int value
+### Get double value, get int value and get number in string format
 
 To get the number value from controller, you can use both the `doubleValue` or the `intValue` properties:
 
@@ -46,6 +46,11 @@ final double val = controller.doubleValue;
 ```dart
 //Int value:
 final int val = controller.intValue;
+```
+
+```dart
+//String number:
+final int val = controller.textWithoutCurrencySymbol;
 ```
 
 ### Initial value
@@ -83,3 +88,13 @@ final CurrencyTextFieldController controller = CurrencyTextFieldController(curre
 
 ### Block the user from setting negative numbers
 Just set `enableNegative` to false
+
+### Force a value from outside the TextField
+```dart
+final CurrencyTextFieldController controller = CurrencyTextFieldController();
+// using a double
+controller.forceValue(initDoubleValue: 300.5);
+
+// using an int
+controller.forceValue(initIntValue: 10000);
+```
