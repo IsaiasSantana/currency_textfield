@@ -137,7 +137,7 @@ class CurrencyTextFieldController extends TextEditingController {
     _setSelectionBy(offset: text.length);
   }
 
-  ///Force a value to the text controller. 
+  ///Force a value to the text controller.
   void forceValue({double? initDoubleValue, int? initIntValue}) {
     assert(!(initDoubleValue != null && initIntValue != null),
         "You must set either 'initDoubleValue' or 'initIntValue' parameter.");
