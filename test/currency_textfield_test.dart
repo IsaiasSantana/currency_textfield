@@ -99,12 +99,42 @@ void main() {
 
   test('get_text_without_currency', () {
     final controller = CurrencyTextFieldController(initIntValue: 195);
-    final controller2 = CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false);
-    final controller3 = CurrencyTextFieldController(initDoubleValue: 195,currencySymbol: 'test',currencySeparator: ' e ');
-    final controller4 = CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false,currencySymbol: '\$',currencySeparator: '->',decimalSymbol: '.');
+    final controller2 =
+        CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false);
+    final controller3 = CurrencyTextFieldController(
+        initDoubleValue: 195, currencySymbol: 'test', currencySeparator: ' e ');
+    final controller4 = CurrencyTextFieldController(
+      initIntValue: 195,
+      currencyOnLeft: false,
+      currencySymbol: '\$',
+      currencySeparator: '->',
+      decimalSymbol: '.',
+    );
     expect(controller.textWithoutCurrencySymbol, '1,95');
     expect(controller2.textWithoutCurrencySymbol, '1,95');
     expect(controller3.textWithoutCurrencySymbol, '195,00');
     expect(controller4.textWithoutCurrencySymbol, '1.95');
+  });
+
+  test('initInt_with_numberOfDecimals', () {
+    final controller = CurrencyTextFieldController(initIntValue: 195);
+    final controller2 =
+        CurrencyTextFieldController(initIntValue: 1950, numberOfDecimals: 1);
+    final controller3 =
+        CurrencyTextFieldController(initIntValue: 19500, numberOfDecimals: 3);
+
+    expect(controller.textWithoutCurrencySymbol, '1,95');
+    expect(controller2.textWithoutCurrencySymbol, '195,0');
+    expect(controller3.textWithoutCurrencySymbol, '19,500');
+  });
+
+  test('maxValue', () {
+    final controller =
+        CurrencyTextFieldController(initDoubleValue: 300, maxValue: 400);
+
+    controller.forceValue(initDoubleValue: 350);
+    expect(controller.textWithoutCurrencySymbol, '350,00');
+    controller.forceValue(initDoubleValue: 3500);
+    expect(controller.textWithoutCurrencySymbol, '400,00');
   });
 }

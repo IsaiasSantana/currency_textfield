@@ -175,6 +175,7 @@ class CurrencyTextFieldController extends TextEditingController {
     } else {
       _isNegative = false;
     }
+    _checkMaxValue();
     _previewsText = _composeCurrency(_applyMaskTo(value: _value));
     text = _previewsText;
     _setSelectionBy(offset: text.length);
