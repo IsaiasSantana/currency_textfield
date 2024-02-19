@@ -44,7 +44,11 @@ import 'dart:math';
 ///
 /// `currencySeparator` lets you define the separator between the symbol and the value.
 ///
-/// Default ` `
+/// Default `' '`
+///
+/// `maxValue` lets you define the maximum allowed value of the controller.
+///
+/// Default `null`
 ///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits, _numberOfDecimals;
@@ -53,9 +57,10 @@ class CurrencyTextFieldController extends TextEditingController {
       _thousandSymbol,
       _currencySeparator;
   final bool _currencyOnLeft, _enableNegative;
-  final _onlyNumbersRegex = RegExp(r'[^\d]');
+  final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late final String _symbolSeparator;
-  
+  final double? _maxValue;
+
   String _previewsText = '';
   double _value = 0.0;
   bool _isNegative = false;
@@ -81,6 +86,7 @@ class CurrencyTextFieldController extends TextEditingController {
     int numberOfDecimals = 2,
     bool currencyOnLeft = true,
     bool enableNegative = true,
+    double? maxValue,
   })  : _currencySymbol = currencySymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol,
@@ -88,7 +94,8 @@ class CurrencyTextFieldController extends TextEditingController {
         _maxDigits = maxDigits,
         _numberOfDecimals = numberOfDecimals,
         _currencyOnLeft = currencyOnLeft,
-        _enableNegative = enableNegative {
+        _enableNegative = enableNegative,
+        _maxValue = maxValue {
     _symbolSeparator = currencyOnLeft
         ? (_currencySymbol + _currencySeparator)
         : (_currencySeparator + _currencySymbol);
@@ -134,6 +141,8 @@ class CurrencyTextFieldController extends TextEditingController {
 
     _value = _getDoubleValueFor(string: clearText);
 
+    _checkMaxValue();
+
     final String maskedValue = _composeCurrency(_applyMaskTo(value: _value));
 
     _previewsText = maskedValue;
@@ -151,7 +160,7 @@ class CurrencyTextFieldController extends TextEditingController {
       _value = initDoubleValue;
       _updateValue();
     } else if (initIntValue != null) {
-      _value = initIntValue / 100;
+      _value = initIntValue / pow(10, _numberOfDecimals);
       _updateValue();
     }
   }
@@ -169,6 +178,15 @@ class CurrencyTextFieldController extends TextEditingController {
     _previewsText = _composeCurrency(_applyMaskTo(value: _value));
     text = _previewsText;
     _setSelectionBy(offset: text.length);
+  }
+
+  ///function to check if the value is greater than maxValue.
+  void _checkMaxValue() {
+    if (_maxValue != null) {
+      if (_value > _maxValue!) {
+        _value = _maxValue!;
+      }
+    }
   }
 
   ///check if the value is negative.

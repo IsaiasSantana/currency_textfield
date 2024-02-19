@@ -1,3 +1,7 @@
+## [4.3.1] - 2024-02-19
+- Added `maxValue` property to the controller. Now it is possible to define the maximum value the user is allowed to input. Everything greater than that will be forced to the maximum value.
+- Fixed input of `initIntValue` when `numberOfDecimals` was different than 2.
+
 ## [4.2.0] - 2024-02-17
 - Added `textWithoutCurrencySymbol` getter to the controller. Now it is possible to return the number part of the controller as a String. Good to avoid round errors and to use with decimal package. 
 - Readme improvements.
