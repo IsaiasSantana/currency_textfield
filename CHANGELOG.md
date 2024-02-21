@@ -1,3 +1,7 @@
+## [4.4.0] - 2024-02-19
+- Added `doubleTextWithoutCurrencySymbol` getter to the controller. Now it is possible to return the number part of the controller as a String, formatted as a double (with `.` as decimal separator).
+- Added a check to ensure that `thousandSymbol` and `decimalSymbol` ​​are not the same.
+
 ## [4.3.1] - 2024-02-19
 - Added `maxValue` property to the controller. Now it is possible to define the maximum value the user is allowed to input. Everything greater than that will be forced to the maximum value.
 - Fixed input of `initIntValue` when `numberOfDecimals` was different than 2.

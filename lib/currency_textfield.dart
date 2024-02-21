@@ -65,15 +65,30 @@ class CurrencyTextFieldController extends TextEditingController {
   double _value = 0.0;
   bool _isNegative = false;
 
+  ///return the number part of the controller as a double.
   double get doubleValue => _value.toPrecision(_numberOfDecimals);
+
+  ///return the currency Symbol of the controller.
   String get currencySymbol => _currencySymbol;
+
+  ///return the decimal Symbol of the controller.
   String get decimalSymbol => _decimalSymbol;
+
+  ///return the thousand Symbol of the controller.
   String get thousandSymbol => _thousandSymbol;
+
+  ///return the number part of the controller as a int. Ex: `1000` for a controller with `R$ 10,00` text.
   int get intValue =>
       (_isNegative ? -1 : 1) *
       (int.tryParse(_getOnlyNumbers(string: text) ?? '') ?? 0);
+
+  ///return the number part of the controller as a String.
   String get textWithoutCurrencySymbol =>
       text.replaceFirst(_symbolSeparator, '');
+
+  ///return the number part of the controller as a String, formatted as a double (with `.` as decimal separator).
+  String get doubleTextWithoutCurrencySymbol =>
+      text.replaceFirst(_symbolSeparator, '').replaceFirst(decimalSymbol, '.');
 
   CurrencyTextFieldController({
     String currencySymbol = 'R\$',
@@ -87,7 +102,9 @@ class CurrencyTextFieldController extends TextEditingController {
     bool currencyOnLeft = true,
     bool enableNegative = true,
     double? maxValue,
-  })  : _currencySymbol = currencySymbol,
+  })  : assert(thousandSymbol != decimalSymbol,
+            "thousandSymbol must be different from decimalSymbol."),
+        _currencySymbol = currencySymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol,
         _currencySeparator = currencySeparator,

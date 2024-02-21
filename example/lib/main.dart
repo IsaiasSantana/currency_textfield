@@ -103,6 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   print(_controller3.intValue);
                   print(_controller3.text);
+                  print(_controller3.textWithoutCurrencySymbol);
+                  print(_controller3.doubleTextWithoutCurrencySymbol);
                 },
                 child: const Text('Controller3 value'),
               ),
