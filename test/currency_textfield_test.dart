@@ -108,12 +108,12 @@ void main() {
       currencyOnLeft: false,
       currencySymbol: '\$',
       currencySeparator: '->',
-      decimalSymbol: '.',
+      decimalSymbol: ':',
     );
     expect(controller.textWithoutCurrencySymbol, '1,95');
     expect(controller2.textWithoutCurrencySymbol, '1,95');
     expect(controller3.textWithoutCurrencySymbol, '195,00');
-    expect(controller4.textWithoutCurrencySymbol, '1.95');
+    expect(controller4.textWithoutCurrencySymbol, '1:95');
   });
 
   test('initInt_with_numberOfDecimals', () {
