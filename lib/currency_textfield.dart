@@ -87,8 +87,10 @@ class CurrencyTextFieldController extends TextEditingController {
       text.replaceFirst(_symbolSeparator, '');
 
   ///return the number part of the controller as a String, formatted as a double (with `.` as decimal separator).
-  String get doubleTextWithoutCurrencySymbol =>
-      text.replaceFirst(_symbolSeparator, '').replaceAll(thousandSymbol, '').replaceFirst(decimalSymbol, '.');
+  String get doubleTextWithoutCurrencySymbol => text
+      .replaceFirst(_symbolSeparator, '')
+      .replaceAll(thousandSymbol, '')
+      .replaceFirst(decimalSymbol, '.');
 
   CurrencyTextFieldController({
     String currencySymbol = 'R\$',
