@@ -1,4 +1,7 @@
-## [4.4.0] - 2024-02-19
+## [4.4.1] - 2024-02-21
+- Fixed `doubleTextWithoutCurrencySymbol`.
+
+## [4.4.0] - 2024-02-21
 - Added `doubleTextWithoutCurrencySymbol` getter to the controller. Now it is possible to return the number part of the controller as a String, formatted as a double (with `.` as decimal separator).
 - Added a check to ensure that `thousandSymbol` and `decimalSymbol` ​​are not the same.
 
