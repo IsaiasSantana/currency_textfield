@@ -137,4 +137,23 @@ void main() {
     controller.forceValue(initDoubleValue: 3500);
     expect(controller.textWithoutCurrencySymbol, '400,00');
   });
+
+  test('replace_symbol', () {
+    final controller = CurrencyTextFieldController(initIntValue: 195);
+    controller.replaceCurrencySymbol('EUR');
+    expect(controller.text, 'EUR 1,95');
+    expect(controller.doubleValue, 1.95);
+    expect(controller.intValue, 195);
+    expect(controller.currencySymbol, 'EUR');
+    expect(controller.doubleTextWithoutCurrencySymbol, '1.95');
+    expect(controller.textWithoutCurrencySymbol, '1,95');
+
+    controller.replaceCurrencySymbol('USD', resetValue: true);
+    expect(controller.text, '');
+    expect(controller.doubleValue, 0);
+    expect(controller.intValue, 0);
+    expect(controller.currencySymbol, 'USD');
+    expect(controller.doubleTextWithoutCurrencySymbol, '0');
+    expect(controller.textWithoutCurrencySymbol, '');
+  });
 }

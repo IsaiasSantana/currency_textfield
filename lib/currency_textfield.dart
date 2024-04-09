@@ -52,14 +52,11 @@ import 'dart:math';
 ///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits, _numberOfDecimals;
-  final String _currencySymbol,
-      _decimalSymbol,
-      _thousandSymbol,
-      _currencySeparator;
+  final String _decimalSymbol, _thousandSymbol, _currencySeparator;
   final bool _currencyOnLeft, _enableNegative;
   final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
-  late final String _symbolSeparator;
   final double? _maxValue;
+  late String _currencySymbol, _symbolSeparator;
 
   String _previewsText = '';
   double _value = 0.0;
@@ -87,10 +84,12 @@ class CurrencyTextFieldController extends TextEditingController {
       text.replaceFirst(_symbolSeparator, '');
 
   ///return the number part of the controller as a String, formatted as a double (with `.` as decimal separator).
-  String get doubleTextWithoutCurrencySymbol => text
-      .replaceFirst(_symbolSeparator, '')
-      .replaceAll(thousandSymbol, '')
-      .replaceFirst(decimalSymbol, '.');
+  String get doubleTextWithoutCurrencySymbol => text != ''
+      ? text
+          .replaceFirst(_symbolSeparator, '')
+          .replaceAll(thousandSymbol, '')
+          .replaceFirst(decimalSymbol, '.')
+      : '0';
 
   CurrencyTextFieldController({
     String currencySymbol = 'R\$',
@@ -115,9 +114,7 @@ class CurrencyTextFieldController extends TextEditingController {
         _currencyOnLeft = currencyOnLeft,
         _enableNegative = enableNegative,
         _maxValue = maxValue {
-    _symbolSeparator = currencyOnLeft
-        ? (_currencySymbol + _currencySeparator)
-        : (_currencySeparator + _currencySymbol);
+    _changeSymbol();
     forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
     addListener(_listener);
   }
@@ -184,6 +181,24 @@ class CurrencyTextFieldController extends TextEditingController {
     }
   }
 
+  ///Replace the current currency symbol by the defined value. If `resetValue = true` the controller will be reseted to 0.
+  void replaceCurrencySymbol(String newSymbol, {bool resetValue = false}) {
+    _currencySymbol = newSymbol;
+    _changeSymbol();
+
+    late final String maskedValue;
+    if (resetValue) {
+      _value = 0;
+      maskedValue = '';
+    } else {
+      maskedValue = _composeCurrency(_applyMaskTo(value: _value));
+    }
+
+    _previewsText = maskedValue;
+
+    text = maskedValue;
+  }
+
   void _updateValue() {
     if (_value < 0) {
       if (!_enableNegative) {
@@ -217,6 +232,12 @@ class CurrencyTextFieldController extends TextEditingController {
       _isNegative = false;
     }
     return _isNegative;
+  }
+
+  void _changeSymbol() {
+    _symbolSeparator = _currencyOnLeft
+        ? (_currencySymbol + _currencySeparator)
+        : (_currencySeparator + _currencySymbol);
   }
 
   void _setSelectionBy({required int offset}) {

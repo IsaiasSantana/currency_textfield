@@ -98,3 +98,13 @@ controller.forceValue(initDoubleValue: 300.5);
 // using an int
 controller.forceValue(initIntValue: 10000);
 ```
+
+### Change the currency symbol of the controller
+```dart
+final CurrencyTextFieldController controller = CurrencyTextFieldController();
+// keeping the current value:
+controller.replaceCurrencySymbol('EUR');
+
+// reseting the current value:
+controller.replaceCurrencySymbol('EUR', resetValue: true);
+```

@@ -1,3 +1,7 @@
+## [4.5.0] - 2024-04-09
+- Added `replaceCurrencySymbol` function to the controller. Now it is possible to change the controller's currency symbol.
+- Forced `doubleTextWithoutCurrencySymbol` to be '0' when controller.text = ''.
+
 ## [4.4.1] - 2024-02-21
 - Fixed `doubleTextWithoutCurrencySymbol`.
 

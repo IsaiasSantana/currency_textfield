@@ -6,7 +6,7 @@ FilteringTextInputFormatter allValues =
 
 class BuildInputField extends StatefulWidget {
   const BuildInputField(
-      {Key? key,
+      {super.key,
       required this.controle,
       this.mascara,
       this.textInputButton = TextInputAction.done,
@@ -28,8 +28,7 @@ class BuildInputField extends StatefulWidget {
       this.alinhamento = TextAlign.start,
       this.disabledColor,
       this.capitalization})
-      : estilo = estilo ?? const TextStyle(fontSize: 16),
-        super(key: key);
+      : estilo = estilo ?? const TextStyle(fontSize: 16);
   final TextEditingController controle;
   final dynamic mascara;
   final TextInputAction textInputButton;

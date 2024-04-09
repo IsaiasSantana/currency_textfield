@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             children: [
               const SizedBox(
-                height: 40,
+                height: 30,
               ),
               BuildInputField(
                 controle: _controller,
@@ -57,7 +57,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 mascara: allValues,
               ),
               const SizedBox(
-                height: 40,
+                height: 10,
+              ),
+              MaterialButton(
+                onPressed: () {
+                  _controller.replaceCurrencySymbol('EUR', resetValue: true);
+                },
+                child: const Text('Change currency symbol'),
+              ),
+              const SizedBox(
+                height: 30,
               ),
               MaterialButton(
                 onPressed: () {
@@ -69,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: const Text('Controller1 value'),
               ),
               const SizedBox(
-                height: 40,
+                height: 30,
               ),
               BuildInputField(
                 controle: _controller2,
@@ -78,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mascara: allValues,
               ),
               const SizedBox(
-                height: 40,
+                height: 30,
               ),
               MaterialButton(
                 onPressed: () {
@@ -88,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: const Text('Controller2 value'),
               ),
               const SizedBox(
-                height: 40,
+                height: 30,
               ),
               BuildInputField(
                 controle: _controller3,
@@ -97,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mascara: allValues,
               ),
               const SizedBox(
-                height: 40,
+                height: 30,
               ),
               MaterialButton(
                 onPressed: () {
@@ -109,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: const Text('Controller3 value'),
               ),
               const SizedBox(
-                height: 40,
+                height: 30,
               ),
               MaterialButton(
                 onPressed: () {
