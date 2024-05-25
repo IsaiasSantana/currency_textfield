@@ -1,3 +1,6 @@
+## [4.6.0] - 2024-05-25
+- Added `replaceMaxValue` function to the controller. Now it is possible to change the controller's maxValue.
+
 ## [4.5.0] - 2024-04-09
 - Added `replaceCurrencySymbol` function to the controller. Now it is possible to change the controller's currency symbol.
 - Forced `doubleTextWithoutCurrencySymbol` to be '0' when controller.text = ''.

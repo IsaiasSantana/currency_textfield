@@ -55,11 +55,11 @@ class CurrencyTextFieldController extends TextEditingController {
   final String _decimalSymbol, _thousandSymbol, _currencySeparator;
   final bool _currencyOnLeft, _enableNegative;
   final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
-  final double? _maxValue;
   late String _currencySymbol, _symbolSeparator;
 
   String _previewsText = '';
   double _value = 0.0;
+  double? _maxValue;
   bool _isNegative = false;
 
   ///return the number part of the controller as a double.
@@ -159,13 +159,7 @@ class CurrencyTextFieldController extends TextEditingController {
 
     _checkMaxValue();
 
-    final String maskedValue = _composeCurrency(_applyMaskTo(value: _value));
-
-    _previewsText = maskedValue;
-
-    text = maskedValue;
-
-    _setSelectionBy(offset: text.length);
+    _changeText();
   }
 
   ///Force a value to the text controller.
@@ -186,17 +180,11 @@ class CurrencyTextFieldController extends TextEditingController {
     _currencySymbol = newSymbol;
     _changeSymbol();
 
-    late final String maskedValue;
     if (resetValue) {
       _value = 0;
-      maskedValue = '';
-    } else {
-      maskedValue = _composeCurrency(_applyMaskTo(value: _value));
     }
 
-    _previewsText = maskedValue;
-
-    text = maskedValue;
+    _changeText();
   }
 
   void _updateValue() {
@@ -210,9 +198,8 @@ class CurrencyTextFieldController extends TextEditingController {
       _isNegative = false;
     }
     _checkMaxValue();
-    _previewsText = _composeCurrency(_applyMaskTo(value: _value));
-    text = _previewsText;
-    _setSelectionBy(offset: text.length);
+
+    _changeText();
   }
 
   ///function to check if the value is greater than maxValue.
@@ -224,6 +211,19 @@ class CurrencyTextFieldController extends TextEditingController {
     }
   }
 
+  ///function to replace current maxValue.
+  void replaceMaxValue(double newMaxvalue, {bool resetValue = false}) {
+    _maxValue = newMaxvalue;
+
+    if (resetValue) {
+      _value = 0;
+    } else {
+      _checkMaxValue();
+    }
+
+    _changeText();
+  }
+
   ///check if the value is negative.
   bool checkNegative() {
     if (_enableNegative) {
@@ -232,6 +232,16 @@ class CurrencyTextFieldController extends TextEditingController {
       _isNegative = false;
     }
     return _isNegative;
+  }
+
+  void _changeText() {
+    if (_value == 0) {
+      _previewsText = '';
+    } else {
+      _previewsText = _composeCurrency(_applyMaskTo(value: _value));
+    }
+    text = _previewsText;
+    _setSelectionBy(offset: text.length);
   }
 
   void _changeSymbol() {
@@ -249,6 +259,7 @@ class CurrencyTextFieldController extends TextEditingController {
     _value = 0;
     _previewsText = _negativeSign();
     text = _previewsText;
+    _setSelectionBy(offset: text.length);
   }
 
   String? _getOnlyNumbers({String? string}) =>

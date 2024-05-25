@@ -156,4 +156,17 @@ void main() {
     expect(controller.doubleTextWithoutCurrencySymbol, '0');
     expect(controller.textWithoutCurrencySymbol, '');
   });
+
+  test('replace_maxValue', () {
+    final controller =
+        CurrencyTextFieldController(initDoubleValue: 300, maxValue: 400);
+
+    controller.forceValue(initDoubleValue: 600);
+    expect(controller.textWithoutCurrencySymbol, '400,00');
+    controller.replaceMaxValue(700);
+    controller.forceValue(initDoubleValue: 600);
+    expect(controller.textWithoutCurrencySymbol, '600,00');
+    controller.replaceMaxValue(500);
+    expect(controller.textWithoutCurrencySymbol, '500,00');
+  });
 }
