@@ -105,6 +105,8 @@ class CurrencyTextFieldController extends TextEditingController {
     double? maxValue,
   })  : assert(thousandSymbol != decimalSymbol,
             "thousandSymbol must be different from decimalSymbol."),
+        assert(numberOfDecimals >= 0,
+            "numberOfDecimals must greater than or equal to 0."),
         _currencySymbol = currencySymbol,
         _decimalSymbol = decimalSymbol,
         _thousandSymbol = thousandSymbol,
@@ -290,9 +292,14 @@ class CurrencyTextFieldController extends TextEditingController {
         .reversed
         .toList(growable: true);
 
-    textRepresentation.insert(_numberOfDecimals, _decimalSymbol);
-
     int thousandPositionSymbol = _numberOfDecimals + 4;
+
+    if (_numberOfDecimals > 0) {
+      textRepresentation.insert(_numberOfDecimals, _decimalSymbol);
+    } else {
+      thousandPositionSymbol -= 1;
+    }
+
     while (textRepresentation.length > thousandPositionSymbol) {
       textRepresentation.insert(thousandPositionSymbol, _thousandSymbol);
       thousandPositionSymbol += 4;

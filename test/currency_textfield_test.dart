@@ -128,6 +128,17 @@ void main() {
     expect(controller3.textWithoutCurrencySymbol, '19,500');
   });
 
+  test('zero_Decimals', () {
+    final controller =
+        CurrencyTextFieldController(initIntValue: 19500, numberOfDecimals: 0);
+
+    expect(controller.textWithoutCurrencySymbol, '19.500');
+    expect(controller.doubleValue, 19500.0);
+    expect(controller.intValue, 19500);
+    expect(controller.doubleTextWithoutCurrencySymbol, '19500');
+    expect(controller.textWithoutCurrencySymbol, '19.500');
+  });
+
   test('maxValue', () {
     final controller =
         CurrencyTextFieldController(initDoubleValue: 300, maxValue: 400);

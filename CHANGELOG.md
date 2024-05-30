@@ -1,3 +1,7 @@
+## [4.6.1] - 2024-05-30
+- Fixed controller output when `numberOfDecimals` = 0.
+- Updated web sample to flutter 3.22.
+
 ## [4.6.0] - 2024-05-25
 - Added `replaceMaxValue` function to the controller. Now it is possible to change the controller's maxValue.
 
