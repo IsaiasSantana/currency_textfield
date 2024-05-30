@@ -1,3 +1,6 @@
+## [4.7.0] - 2024-05-30
+- Bump flutter_lints to 4.0.0.
+
 ## [4.6.1] - 2024-05-30
 - Fixed controller output when `numberOfDecimals` = 0.
 - Updated web sample to flutter 3.22.
