@@ -50,6 +50,10 @@ import 'dart:math';
 ///
 /// Default `null`
 ///
+/// `startWithSeparator` lets you define if the controller starts with decimals activated.
+///
+/// Default `true`
+///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits, _numberOfDecimals;
   final String _decimalSymbol, _thousandSymbol, _currencySeparator;
@@ -61,6 +65,7 @@ class CurrencyTextFieldController extends TextEditingController {
   double _value = 0.0;
   double? _maxValue;
   bool _isNegative = false;
+  late bool _startWithSeparator;
 
   ///return the number part of the controller as a double.
   double get doubleValue => _value.toPrecision(_numberOfDecimals);
@@ -103,6 +108,7 @@ class CurrencyTextFieldController extends TextEditingController {
     bool currencyOnLeft = true,
     bool enableNegative = true,
     double? maxValue,
+    bool startWithSeparator = true,
   })  : assert(thousandSymbol != decimalSymbol,
             "thousandSymbol must be different from decimalSymbol."),
         assert(numberOfDecimals >= 0,
@@ -115,7 +121,8 @@ class CurrencyTextFieldController extends TextEditingController {
         _numberOfDecimals = numberOfDecimals,
         _currencyOnLeft = currencyOnLeft,
         _enableNegative = enableNegative,
-        _maxValue = maxValue {
+        _maxValue = maxValue,
+        _startWithSeparator = startWithSeparator {
     _changeSymbol();
     forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
     addListener(_listener);
@@ -142,7 +149,7 @@ class CurrencyTextFieldController extends TextEditingController {
       }
     }
 
-    if (clearText.isEmpty) {
+    if (clearText.isEmpty || (double.tryParse(clearText) ?? 0.0) == 0.0) {
       _zeroValue();
       return;
     }
@@ -152,9 +159,11 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
-      _zeroValue();
-      return;
+    if (!_startWithSeparator) {
+      if (text.endsWith(_decimalSymbol)) {
+        _startWithSeparator = true;
+        clearText = clearText + '0' * _numberOfDecimals;
+      }
     }
 
     _value = _getDoubleValueFor(string: clearText);
@@ -270,7 +279,7 @@ class CurrencyTextFieldController extends TextEditingController {
   double _getDoubleValueFor({required String string}) {
     return (_isNegative ? -1 : 1) *
         (double.tryParse(string) ?? 0.0) /
-        pow(10, _numberOfDecimals);
+        (_startWithSeparator ? pow(10, _numberOfDecimals) : 1);
   }
 
   String _composeCurrency(String value) {
@@ -284,18 +293,19 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   String _applyMaskTo({required double value}) {
+    final decimals = _startWithSeparator ? _numberOfDecimals : 0;
     final List<String> textRepresentation = value
-        .toStringAsFixed(_numberOfDecimals)
+        .abs()
+        .toStringAsFixed(decimals)
         .replaceAll('.', '')
-        .replaceAll('-', '')
         .split('')
         .reversed
         .toList(growable: true);
 
     int thousandPositionSymbol = _numberOfDecimals + 4;
 
-    if (_numberOfDecimals > 0) {
-      textRepresentation.insert(_numberOfDecimals, _decimalSymbol);
+    if (decimals > 0) {
+      textRepresentation.insert(decimals, _decimalSymbol);
     } else {
       thousandPositionSymbol -= 1;
     }

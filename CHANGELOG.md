@@ -1,3 +1,6 @@
+## [4.8.0] - 2024-05-31
+- Added `startWithSeparator` parameter: now you can define if the controller starts with decimals activated.[15](https://github.com/IsaiasSantana/currency_textfield/issues/15)
+
 ## [4.7.0] - 2024-05-30
 - Bump flutter_lints to 4.0.0.
 
