@@ -1,3 +1,8 @@
+## [4.9.0] - 2024-06-01
+- Fixed `symbolSeparator` not reseting if `startWithSeparator` was set to false.[17](https://github.com/IsaiasSantana/currency_textfield/issues/17).
+- Fixed [16](https://github.com/IsaiasSantana/currency_textfield/issues/16).
+- Fixed an error with `thousandSymbol` introduced in 4.8.0.
+
 ## [4.8.0] - 2024-05-31
 - Added `startWithSeparator` parameter: now you can define if the controller starts with decimals activated.[15](https://github.com/IsaiasSantana/currency_textfield/issues/15)
 

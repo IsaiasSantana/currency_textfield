@@ -57,7 +57,7 @@ import 'dart:math';
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits, _numberOfDecimals;
   final String _decimalSymbol, _thousandSymbol, _currencySeparator;
-  final bool _currencyOnLeft, _enableNegative;
+  final bool _currencyOnLeft, _enableNegative, _resetSeparator;
   final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late String _currencySymbol, _symbolSeparator;
 
@@ -122,7 +122,8 @@ class CurrencyTextFieldController extends TextEditingController {
         _currencyOnLeft = currencyOnLeft,
         _enableNegative = enableNegative,
         _maxValue = maxValue,
-        _startWithSeparator = startWithSeparator {
+        _startWithSeparator = startWithSeparator,
+        _resetSeparator = !startWithSeparator {
     _changeSymbol();
     forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
     addListener(_listener);
@@ -134,6 +135,11 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
+    if (text.isEmpty) {
+      _zeroValue();
+      return;
+    }
+
     checkNegative();
 
     late String clearText;
@@ -141,6 +147,7 @@ class CurrencyTextFieldController extends TextEditingController {
     if (_currencyOnLeft) {
       clearText = (_getOnlyNumbers(string: text) ?? '').trim();
     } else {
+      // TODO corrigir erro de negativo
       if (text.lastChars(1).isNumeric()) {
         clearText = (_getOnlyNumbers(string: text) ?? '').trim();
       } else {
@@ -149,7 +156,7 @@ class CurrencyTextFieldController extends TextEditingController {
       }
     }
 
-    if (clearText.isEmpty || (double.tryParse(clearText) ?? 0.0) == 0.0) {
+    if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
       _zeroValue();
       return;
     }
@@ -271,6 +278,9 @@ class CurrencyTextFieldController extends TextEditingController {
     _previewsText = _negativeSign();
     text = _previewsText;
     _setSelectionBy(offset: text.length);
+    if (_resetSeparator && _startWithSeparator) {
+      _startWithSeparator = false;
+    }
   }
 
   String? _getOnlyNumbers({String? string}) =>
@@ -302,7 +312,7 @@ class CurrencyTextFieldController extends TextEditingController {
         .reversed
         .toList(growable: true);
 
-    int thousandPositionSymbol = _numberOfDecimals + 4;
+    int thousandPositionSymbol = decimals + 4;
 
     if (decimals > 0) {
       textRepresentation.insert(decimals, _decimalSymbol);
