@@ -136,18 +136,22 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     if (text.isEmpty) {
-      _zeroValue();
+      _zeroValue(resetText: false);
       return;
     }
 
     checkNegative();
+
+    if (text == '-') {
+      _previewsText = '-';
+      return;
+    }
 
     late String clearText;
 
     if (_currencyOnLeft) {
       clearText = (_getOnlyNumbers(string: text) ?? '').trim();
     } else {
-      // TODO corrigir erro de negativo
       if (text.lastChars(1).isNumeric()) {
         clearText = (_getOnlyNumbers(string: text) ?? '').trim();
       } else {
@@ -272,12 +276,15 @@ class CurrencyTextFieldController extends TextEditingController {
     selection = TextSelection.fromPosition(TextPosition(offset: offset));
   }
 
-  ///force the sign when `_value = 0`
-  void _zeroValue() {
+  ///resets the controller to 0.
+  void _zeroValue({bool resetText = true}) {
     _value = 0;
-    _previewsText = _negativeSign();
-    text = _previewsText;
-    _setSelectionBy(offset: text.length);
+    _isNegative = false;
+    _previewsText = '';
+    if (resetText) {
+      text = _previewsText;
+      _setSelectionBy(offset: 0);
+    }
     if (_resetSeparator && _startWithSeparator) {
       _startWithSeparator = false;
     }

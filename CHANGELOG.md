@@ -1,3 +1,7 @@
+## [4.9.1] - 2024-06-02
+- Fixed a bug that caused minus sign to not disappear when the value of the controller is 0.[18](https://github.com/IsaiasSantana/currency_textfield/issues/18).
+- Removed unnecessary call to the listener.
+
 ## [4.9.0] - 2024-06-01
 - Fixed `symbolSeparator` not reseting if `startWithSeparator` was set to false.[17](https://github.com/IsaiasSantana/currency_textfield/issues/17).
 - Fixed [16](https://github.com/IsaiasSantana/currency_textfield/issues/16).
