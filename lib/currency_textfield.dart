@@ -53,7 +53,7 @@ import 'dart:math';
 /// `startWithSeparator` lets you define if the controller starts with decimals activated.
 ///
 /// Default `true`
-/// 
+///
 /// `showZeroValue` lets you define if the controller will show the 0 value.
 ///
 /// Default `false`
