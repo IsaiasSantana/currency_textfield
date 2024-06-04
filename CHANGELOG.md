@@ -1,3 +1,6 @@
+## [4.10.1] - 2024-06-04
+- Added ios folder to example.
+
 ## [4.10.0] - 2024-06-04
 - Added `showZeroValue` parameter: now you can define if the controller will show the 0 value.[19](https://github.com/IsaiasSantana/currency_textfield/issues/19)
 
