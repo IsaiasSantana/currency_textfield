@@ -180,4 +180,16 @@ void main() {
     controller.replaceMaxValue(500);
     expect(controller.textWithoutCurrencySymbol, '500,00');
   });
+
+  test('test_allowZeroValue_shoulDisplayZeroValueFormatted', () {
+    final controller = CurrencyTextFieldController(initIntValue: 0, allowZeroValue: true);
+
+    expect(controller.text, "R\$ 0,00");
+  });
+
+    test('test_allowZeroValue_whithoutInitialValue_shoulDisplayEmptyString', () {
+    final controller = CurrencyTextFieldController(allowZeroValue: true);
+
+    expect(controller.text, '');
+  });
 }
