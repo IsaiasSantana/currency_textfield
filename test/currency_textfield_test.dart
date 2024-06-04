@@ -182,14 +182,16 @@ void main() {
   });
 
   test('test_allowZeroValue_shoulDisplayZeroValueFormatted', () {
-    final controller = CurrencyTextFieldController(initIntValue: 0, allowZeroValue: true);
+    final controller = CurrencyTextFieldController(initIntValue: 0, showZeroValue: true);
 
     expect(controller.text, "R\$ 0,00");
   });
 
     test('test_allowZeroValue_whithoutInitialValue_shoulDisplayEmptyString', () {
-    final controller = CurrencyTextFieldController(allowZeroValue: true);
+    final controller = CurrencyTextFieldController(showZeroValue: true);
+    final controller2 = CurrencyTextFieldController(initIntValue: 0);
 
     expect(controller.text, '');
+    expect(controller2.text, '');
   });
 }

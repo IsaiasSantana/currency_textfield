@@ -1,3 +1,6 @@
+## [4.10.0] - 2024-06-04
+- Added `showZeroValue` parameter: now you can define if the controller will show the 0 value.[19](https://github.com/IsaiasSantana/currency_textfield/issues/19)
+
 ## [4.9.1] - 2024-06-02
 - Fixed a bug that caused minus sign to not disappear when the value of the controller is 0.[18](https://github.com/IsaiasSantana/currency_textfield/issues/18).
 - Removed unnecessary call to the listener.

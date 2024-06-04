@@ -53,12 +53,16 @@ import 'dart:math';
 /// `startWithSeparator` lets you define if the controller starts with decimals activated.
 ///
 /// Default `true`
+/// 
+/// `showZeroValue` lets you define if the controller will show the 0 value.
+///
+/// Default `false`
 ///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits, _numberOfDecimals;
   final String _decimalSymbol, _thousandSymbol, _currencySeparator;
   final bool _currencyOnLeft, _enableNegative, _resetSeparator;
-  final bool _allowZeroValue;
+  final bool _showZeroValue;
   final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late String _currencySymbol, _symbolSeparator;
 
@@ -110,7 +114,7 @@ class CurrencyTextFieldController extends TextEditingController {
     bool enableNegative = true,
     double? maxValue,
     bool startWithSeparator = true,
-    bool allowZeroValue = false,
+    bool showZeroValue = false,
   })  : assert(thousandSymbol != decimalSymbol,
             "thousandSymbol must be different from decimalSymbol."),
         assert(numberOfDecimals >= 0,
@@ -126,7 +130,7 @@ class CurrencyTextFieldController extends TextEditingController {
         _maxValue = maxValue,
         _startWithSeparator = startWithSeparator,
         _resetSeparator = !startWithSeparator,
-        _allowZeroValue = allowZeroValue {
+        _showZeroValue = showZeroValue {
     _changeSymbol();
     forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
     addListener(_listener);
@@ -138,7 +142,7 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    if (!_allowZeroValue && text.isEmpty) {
+    if (text.isEmpty) {
       _zeroValue(resetText: false);
       return;
     }
@@ -163,7 +167,7 @@ class CurrencyTextFieldController extends TextEditingController {
       }
     }
 
-    if (!_allowZeroValue && (double.tryParse(clearText) ?? 0.0) == 0.0) {
+    if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
       _zeroValue();
       return;
     }
@@ -260,8 +264,8 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   void _changeText() {
-    if (_value == 0) {
-      _previewsText = _allowZeroValue ? _composeCurrency(_applyMaskTo(value: _value)) : '';
+    if (_value == 0 && !_showZeroValue) {
+      _previewsText = '';
     } else {
       _previewsText = _composeCurrency(_applyMaskTo(value: _value));
     }
@@ -283,12 +287,11 @@ class CurrencyTextFieldController extends TextEditingController {
   void _zeroValue({bool resetText = true}) {
     _value = 0;
     _isNegative = false;
-    _previewsText = '';
 
-    if (resetText) {
-      _previewsText = _allowZeroValue ? '0' : '';
-      text = _previewsText;
-      _setSelectionBy(offset: 0);
+    if (resetText || _showZeroValue) {
+      _changeText();
+    } else {
+      _previewsText = '';
     }
 
     if (_resetSeparator && _startWithSeparator) {
