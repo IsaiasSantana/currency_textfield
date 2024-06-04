@@ -58,6 +58,7 @@ class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits, _numberOfDecimals;
   final String _decimalSymbol, _thousandSymbol, _currencySeparator;
   final bool _currencyOnLeft, _enableNegative, _resetSeparator;
+  final bool _allowZeroValue;
   final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late String _currencySymbol, _symbolSeparator;
 
@@ -109,6 +110,7 @@ class CurrencyTextFieldController extends TextEditingController {
     bool enableNegative = true,
     double? maxValue,
     bool startWithSeparator = true,
+    bool allowZeroValue = false,
   })  : assert(thousandSymbol != decimalSymbol,
             "thousandSymbol must be different from decimalSymbol."),
         assert(numberOfDecimals >= 0,
@@ -123,7 +125,8 @@ class CurrencyTextFieldController extends TextEditingController {
         _enableNegative = enableNegative,
         _maxValue = maxValue,
         _startWithSeparator = startWithSeparator,
-        _resetSeparator = !startWithSeparator {
+        _resetSeparator = !startWithSeparator,
+        _allowZeroValue = allowZeroValue {
     _changeSymbol();
     forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
     addListener(_listener);
@@ -135,7 +138,7 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    if (text.isEmpty) {
+    if (!_allowZeroValue && text.isEmpty) {
       _zeroValue(resetText: false);
       return;
     }
@@ -160,7 +163,7 @@ class CurrencyTextFieldController extends TextEditingController {
       }
     }
 
-    if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
+    if (!_allowZeroValue && (double.tryParse(clearText) ?? 0.0) == 0.0) {
       _zeroValue();
       return;
     }
@@ -258,7 +261,7 @@ class CurrencyTextFieldController extends TextEditingController {
 
   void _changeText() {
     if (_value == 0) {
-      _previewsText = '';
+      _previewsText = _allowZeroValue ? _composeCurrency(_applyMaskTo(value: _value)) : '';
     } else {
       _previewsText = _composeCurrency(_applyMaskTo(value: _value));
     }
@@ -281,10 +284,13 @@ class CurrencyTextFieldController extends TextEditingController {
     _value = 0;
     _isNegative = false;
     _previewsText = '';
+
     if (resetText) {
+      _previewsText = _allowZeroValue ? '0' : '';
       text = _previewsText;
       _setSelectionBy(offset: 0);
     }
+
     if (_resetSeparator && _startWithSeparator) {
       _startWithSeparator = false;
     }
