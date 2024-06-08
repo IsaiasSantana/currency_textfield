@@ -8,61 +8,68 @@ import 'dart:math';
 ///
 /// `currencySymbol` is your currency symbol.
 ///
-/// Default `R\$`
+/// Default: `R\$`
 ///
 /// `decimalSymbol` is the decimal separator symbol.
 ///
-/// Default `,`
+/// Default: `,`
 ///
 /// `thousandSymbol` is the thousand separator symbol.
 ///
-/// @Default `.`
+/// @Default: `.`
 ///
 /// `initDoubleValue` is the optional initial value in double format.
 ///
-/// Default `null`
+/// Default: `null`
 ///
 /// `initIntValue` is the optional initial value in int format. It'll be divided by 100 before being presented.
 ///
-/// Default `null`
+/// Default: `null`
 ///
 /// `numberOfDecimals` lets you define the max number of decimal digits to be presented.
 ///
-/// Default `2`
+/// Default: `2`
 ///
 /// `maxDigits` lets you define the max number of digits to be presented.
 ///
-/// Default `15`
+/// Default: `15`
 ///
 /// `currencyOnLeft` lets you define if the symbol will be on left or right of the value.
 ///
-/// Default `true`
+/// Default: `true`
 ///
 /// `enableNegative` lets you define if the user can set negative values.
 ///
-/// Default `true`
+/// Default: `true`
 ///
 /// `currencySeparator` lets you define the separator between the symbol and the value.
 ///
-/// Default `' '`
+/// Default: `' '`
 ///
 /// `maxValue` lets you define the maximum allowed value of the controller.
 ///
-/// Default `null`
+/// Default: `null`
 ///
 /// `startWithSeparator` lets you define if the controller starts with decimals activated.
 ///
-/// Default `true`
+/// Default: `true`
 ///
 /// `showZeroValue` lets you define if the controller will show the 0 value.
 ///
-/// Default `false`
+/// Default: `false`
+///
+/// `forceCursorToEnd` lets you define if the controller will always force the user to input the numbers on the end of the string.
+///
+/// Default: `true`
 ///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits, _numberOfDecimals;
   final String _decimalSymbol, _thousandSymbol, _currencySeparator;
-  final bool _currencyOnLeft, _enableNegative, _resetSeparator;
-  final bool _showZeroValue;
+  final bool _currencyOnLeft,
+      _enableNegative,
+      _resetSeparator,
+      _showZeroValue,
+      _forceCursorToEnd;
   final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late String _currencySymbol, _symbolSeparator;
 
@@ -115,6 +122,7 @@ class CurrencyTextFieldController extends TextEditingController {
     double? maxValue,
     bool startWithSeparator = true,
     bool showZeroValue = false,
+    bool forceCursorToEnd = true,
   })  : assert(thousandSymbol != decimalSymbol,
             "thousandSymbol must be different from decimalSymbol."),
         assert(numberOfDecimals >= 0,
@@ -130,7 +138,8 @@ class CurrencyTextFieldController extends TextEditingController {
         _maxValue = maxValue,
         _startWithSeparator = startWithSeparator,
         _resetSeparator = !startWithSeparator,
-        _showZeroValue = showZeroValue {
+        _showZeroValue = showZeroValue,
+        _forceCursorToEnd = forceCursorToEnd {
     _changeSymbol();
     forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
     addListener(_listener);
@@ -138,7 +147,9 @@ class CurrencyTextFieldController extends TextEditingController {
 
   void _listener() {
     if (_previewsText == text) {
-      _setSelectionBy(offset: text.length);
+      if (_forceCursorToEnd) {
+        _setSelectionBy(offset: text.length);
+      }
       return;
     }
 
@@ -168,7 +179,7 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
-      _zeroValue();
+      _zeroValue(forceNegative: text.endsWith('-'));
       return;
     }
 
@@ -284,9 +295,9 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   ///resets the controller to 0.
-  void _zeroValue({bool resetText = true}) {
+  void _zeroValue({bool resetText = true, bool forceNegative = false}) {
     _value = 0;
-    _isNegative = false;
+    _isNegative = forceNegative;
 
     if (resetText || _showZeroValue) {
       _changeText();

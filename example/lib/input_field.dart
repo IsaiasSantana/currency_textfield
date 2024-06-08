@@ -70,7 +70,7 @@ class _BuildInputFieldState extends State<BuildInputField> {
           style: widget.estilo,
           maxLines: widget.lines,
           obscureText: widget.oculto,
-          cursorColor: Colors.transparent,
+          cursorColor: Colors.red,
           controller: widget.controle,
           inputFormatters: [widget.mascara ?? allValues],
           autocorrect: false,

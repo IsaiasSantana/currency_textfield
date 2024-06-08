@@ -195,4 +195,14 @@ void main() {
     expect(controller.text, '');
     expect(controller2.text, '');
   });
+
+  test('enableNegative + showZeroValue bug fix', () {
+    final controller = CurrencyTextFieldController(showZeroValue: true);
+    controller.text = "R\$ 0,00-";
+
+    expect(controller.text, '-R\$ 0,00');
+    controller.clear();
+    controller.text = "R\$ 7,00-";
+    expect(controller.text, "R\$ 7,00");
+  });
 }

@@ -1,3 +1,7 @@
+## [4.11.0] - 2024-06-07
+- Added `forceCursorToEnd` parameter: now you can define if the controller will always force the user to input the numbers on the end of the string.
+- Fixed If enableNegative + showZeroValue properties are true, then negative #s cannot be entered! [22](https://github.com/IsaiasSantana/currency_textfield/issues/22).
+
 ## [4.10.1] - 2024-06-04
 - Added ios folder to example.
 
