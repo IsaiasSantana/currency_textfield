@@ -50,6 +50,10 @@ import 'dart:math';
 ///
 /// Default: `null`
 ///
+/// `minValue` lets you define the minimum allowed value of the controller.
+///
+/// Default: `null`
+///
 /// `startWithSeparator` lets you define if the controller starts with decimals activated.
 ///
 /// Default: `true`
@@ -76,6 +80,7 @@ class CurrencyTextFieldController extends TextEditingController {
   String _previewsText = '';
   double _value = 0.0;
   double? _maxValue;
+  double? _minValue;
   bool _isNegative = false;
   late bool _startWithSeparator;
 
@@ -120,6 +125,7 @@ class CurrencyTextFieldController extends TextEditingController {
     bool currencyOnLeft = true,
     bool enableNegative = true,
     double? maxValue,
+    double? minValue,
     bool startWithSeparator = true,
     bool showZeroValue = false,
     bool forceCursorToEnd = true,
@@ -136,6 +142,7 @@ class CurrencyTextFieldController extends TextEditingController {
         _currencyOnLeft = currencyOnLeft,
         _enableNegative = enableNegative,
         _maxValue = maxValue,
+        _minValue = minValue,
         _startWithSeparator = startWithSeparator,
         _resetSeparator = !startWithSeparator,
         _showZeroValue = showZeroValue,
@@ -228,6 +235,8 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   void _updateValue() {
+    _checkMinValue();
+
     if (_value < 0) {
       if (!_enableNegative) {
         _value = _value * -1;
@@ -251,6 +260,15 @@ class CurrencyTextFieldController extends TextEditingController {
     }
   }
 
+  ///function to check if the value is lower than minValue.
+  void _checkMinValue() {
+    if (_minValue != null) {
+      if (_value < _minValue!) {
+        _value = _minValue!;
+      }
+    }
+  }
+
   ///function to replace current maxValue.
   void replaceMaxValue(double newMaxvalue, {bool resetValue = false}) {
     _maxValue = newMaxvalue;
@@ -259,6 +277,19 @@ class CurrencyTextFieldController extends TextEditingController {
       _value = 0;
     } else {
       _checkMaxValue();
+    }
+
+    _changeText();
+  }
+
+  ///function to replace current minValue.
+  void replaceMinValue(double newMinvalue, {bool resetValue = false}) {
+    _minValue = newMinvalue;
+
+    if (resetValue) {
+      _value = 0;
+    } else {
+      _checkMinValue();
     }
 
     _changeText();

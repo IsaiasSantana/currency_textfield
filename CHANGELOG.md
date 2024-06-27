@@ -1,3 +1,6 @@
+## [4.12.0] - 2024-06-26
+- Added `minValue` property to the controller. Now it is possible to define the minimum value the user is allowed to input. Everything lower than that will be forced to the minimum value.
+
 ## [4.11.0] - 2024-06-07
 - Added `forceCursorToEnd` parameter: now you can define if the controller will always force the user to input the numbers on the end of the string.
 - Fixed If enableNegative + showZeroValue properties are true, then negative #s cannot be entered! [22](https://github.com/IsaiasSantana/currency_textfield/issues/22).

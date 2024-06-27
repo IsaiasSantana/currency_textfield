@@ -205,4 +205,26 @@ void main() {
     controller.text = "R\$ 7,00-";
     expect(controller.text, "R\$ 7,00");
   });
+
+  test('minValue', () {
+    final controller =
+        CurrencyTextFieldController(initDoubleValue: 300, minValue: 200);
+    final controller2 =
+        CurrencyTextFieldController(initDoubleValue: 100, minValue: 200);
+
+    controller.forceValue(initDoubleValue: 100);
+    expect(controller.textWithoutCurrencySymbol, '200,00');
+    expect(controller2.textWithoutCurrencySymbol, '200,00');
+  });
+
+  test('replace_minValue', () {
+    final controller =
+        CurrencyTextFieldController(initDoubleValue: 300, minValue: 200);
+
+    controller.forceValue(initDoubleValue: 100);
+    expect(controller.textWithoutCurrencySymbol, '200,00');
+    controller.replaceMinValue(0);
+    controller.forceValue(initDoubleValue: 50);
+    expect(controller.textWithoutCurrencySymbol, '50,00');
+  });
 }
