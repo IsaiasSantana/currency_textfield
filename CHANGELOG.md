@@ -1,3 +1,7 @@
+## [4.13.0] - 2024-11-07
+- Added `removeSymbol` parameter to let you define that controller will only show the formatted number.
+- Fixed tests.
+
 ## [4.12.1] - 2024-11-06
 - Mini improvement to `forceValue` function.
 

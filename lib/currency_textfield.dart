@@ -66,6 +66,10 @@ import 'dart:math';
 ///
 /// Default: `true`
 ///
+/// `removeSymbol` lets you define that controller will only show the formatted number.
+///
+/// Default: `false`
+///
 class CurrencyTextFieldController extends TextEditingController {
   final int _maxDigits, _numberOfDecimals;
   final String _decimalSymbol, _thousandSymbol, _currencySeparator;
@@ -73,7 +77,8 @@ class CurrencyTextFieldController extends TextEditingController {
       _enableNegative,
       _resetSeparator,
       _showZeroValue,
-      _forceCursorToEnd;
+      _forceCursorToEnd,
+      _removeSymbol;
   final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late String _currencySymbol, _symbolSeparator;
 
@@ -129,6 +134,7 @@ class CurrencyTextFieldController extends TextEditingController {
     bool startWithSeparator = true,
     bool showZeroValue = false,
     bool forceCursorToEnd = true,
+    bool removeSymbol = false,
   })  : assert(thousandSymbol != decimalSymbol,
             "thousandSymbol must be different from decimalSymbol."),
         assert(numberOfDecimals >= 0,
@@ -146,9 +152,13 @@ class CurrencyTextFieldController extends TextEditingController {
         _startWithSeparator = startWithSeparator,
         _resetSeparator = !startWithSeparator,
         _showZeroValue = showZeroValue,
-        _forceCursorToEnd = forceCursorToEnd {
-    _changeSymbol();
-    forceValue(initDoubleValue: initDoubleValue, initIntValue: initIntValue);
+        _forceCursorToEnd = forceCursorToEnd,
+        _removeSymbol = removeSymbol {
+    _changeSymbolSeparator();
+    forceValue(
+        initDoubleValue: initDoubleValue,
+        initIntValue: initIntValue,
+        init: true);
     addListener(_listener);
   }
 
@@ -210,7 +220,8 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   ///Force a value to the text controller. If initDoubleValue and initIntValue are both null, 0 will be forced.
-  void forceValue({double? initDoubleValue, int? initIntValue}) {
+  void forceValue(
+      {double? initDoubleValue, int? initIntValue, bool init = false}) {
     if (initDoubleValue != null) {
       _value = initDoubleValue;
       _updateValue();
@@ -218,15 +229,17 @@ class CurrencyTextFieldController extends TextEditingController {
       _value = initIntValue / pow(10, _numberOfDecimals);
       _updateValue();
     } else {
-      _value = 0;
-      _updateValue();
+      if (!init) {
+        _value = 0;
+        _updateValue();
+      }
     }
   }
 
   ///Replace the current currency symbol by the defined value. If `resetValue = true` the controller will be reseted to 0.
   void replaceCurrencySymbol(String newSymbol, {bool resetValue = false}) {
     _currencySymbol = newSymbol;
-    _changeSymbol();
+    _changeSymbolSeparator();
 
     if (resetValue) {
       _value = 0;
@@ -316,10 +329,14 @@ class CurrencyTextFieldController extends TextEditingController {
     _setSelectionBy(offset: text.length);
   }
 
-  void _changeSymbol() {
-    _symbolSeparator = _currencyOnLeft
-        ? (_currencySymbol + _currencySeparator)
-        : (_currencySeparator + _currencySymbol);
+  void _changeSymbolSeparator() {
+    if (!_removeSymbol) {
+      _symbolSeparator = _currencyOnLeft
+          ? (_currencySymbol + _currencySeparator)
+          : (_currencySeparator + _currencySymbol);
+    } else {
+      _symbolSeparator = '';
+    }
   }
 
   void _setSelectionBy({required int offset}) {

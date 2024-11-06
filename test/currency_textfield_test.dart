@@ -227,4 +227,16 @@ void main() {
     controller.forceValue(initDoubleValue: 50);
     expect(controller.textWithoutCurrencySymbol, '50,00');
   });
+
+  test('remove_symbol', () {
+    final controller =
+        CurrencyTextFieldController(initDoubleValue: 300, removeSymbol: true);
+
+    expect(controller.textWithoutCurrencySymbol, '300,00');
+    expect(controller.text, '300,00');
+    expect(controller.currencySymbol, 'R\$');
+    expect(controller.doubleValue, 300);
+    expect(controller.intValue, 30000);
+    expect(controller.doubleTextWithoutCurrencySymbol, '300.00');
+  });
 }
