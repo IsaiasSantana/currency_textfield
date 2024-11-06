@@ -1,3 +1,6 @@
+## [4.12.1] - 2024-11-06
+- Mini improvement to `forceValue` function.
+
 ## [4.12.0] - 2024-06-26
 - Added `minValue` property to the controller. Now it is possible to define the minimum value the user is allowed to input. Everything lower than that will be forced to the minimum value.
 

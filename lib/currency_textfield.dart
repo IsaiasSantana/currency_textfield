@@ -209,15 +209,16 @@ class CurrencyTextFieldController extends TextEditingController {
     _changeText();
   }
 
-  ///Force a value to the text controller.
+  ///Force a value to the text controller. If initDoubleValue and initIntValue are both null, 0 will be forced.
   void forceValue({double? initDoubleValue, int? initIntValue}) {
-    assert(!(initDoubleValue != null && initIntValue != null),
-        "You must set either 'initDoubleValue' or 'initIntValue' parameter.");
     if (initDoubleValue != null) {
       _value = initDoubleValue;
       _updateValue();
     } else if (initIntValue != null) {
       _value = initIntValue / pow(10, _numberOfDecimals);
+      _updateValue();
+    } else {
+      _value = 0;
       _updateValue();
     }
   }

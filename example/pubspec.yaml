@@ -10,11 +10,11 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  currency_textfield:
+    path: ../
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  currency_textfield:
-    path: ../
 flutter:
   uses-material-design: true
