@@ -213,7 +213,8 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     _value = _getDoubleValueFor(string: clearText);
-
+    
+    _checkMinValue();
     _checkMaxValue();
 
     _changeText();
