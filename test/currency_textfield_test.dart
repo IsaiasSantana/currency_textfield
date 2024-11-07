@@ -239,4 +239,12 @@ void main() {
     expect(controller.intValue, 30000);
     expect(controller.doubleTextWithoutCurrencySymbol, '300.00');
   });
+
+  test('clear_zero_value', () {
+    final controller =
+        CurrencyTextFieldController(initIntValue: 0, showZeroValue: true);
+
+    controller.clear();
+    expect(controller.text, "");
+  });
 }

@@ -1,3 +1,7 @@
+## [4.14.1] - 2024-11-07
+- Fixed bugs.
+- Added tests.
+
 ## [4.14.0] - 2024-11-07
 - Added missing min value check.
 - Fixed zero not being deleted if `showZeroValue` parameter is true.[23](https://github.com/IsaiasSantana/currency_textfield/issues/23)

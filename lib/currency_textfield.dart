@@ -355,15 +355,10 @@ class CurrencyTextFieldController extends TextEditingController {
     _value = 0;
     _isNegative = forceNegative;
 
-    if (_showZeroValue) {
-      _changeText();
-    } else {
-      _previewsText = '';
-    }
-
     if (_resetSeparator && _startWithSeparator) {
       _startWithSeparator = false;
     }
+    _changeText();
   }
 
   bool _checkCleanZeroText(String currentText) {
