@@ -171,7 +171,7 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     if (text.isEmpty) {
-      _zeroValue(resetText: false);
+      _zeroValue(clean: _checkCleanZeroText(text));
       return;
     }
 
@@ -196,7 +196,8 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
-      _zeroValue(forceNegative: text.endsWith('-'));
+      _zeroValue(
+          forceNegative: text.endsWith('-'), clean: _checkCleanZeroText(text));
       return;
     }
 
@@ -213,7 +214,7 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     _value = _getDoubleValueFor(string: clearText);
-    
+
     _checkMinValue();
     _checkMaxValue();
 
@@ -345,11 +346,16 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   ///resets the controller to 0.
-  void _zeroValue({bool resetText = true, bool forceNegative = false}) {
+  void _zeroValue({bool forceNegative = false, bool clean = false}) {
+    if (clean) {
+      _previewsText = '';
+      text = _previewsText;
+      return;
+    }
     _value = 0;
     _isNegative = forceNegative;
 
-    if (resetText || _showZeroValue) {
+    if (_showZeroValue) {
       _changeText();
     } else {
       _previewsText = '';
@@ -358,6 +364,12 @@ class CurrencyTextFieldController extends TextEditingController {
     if (_resetSeparator && _startWithSeparator) {
       _startWithSeparator = false;
     }
+  }
+
+  bool _checkCleanZeroText(String currentText) {
+    return _value == 0 &&
+        _showZeroValue &&
+        currentText.length < _previewsText.length;
   }
 
   String? _getOnlyNumbers({String? string}) =>

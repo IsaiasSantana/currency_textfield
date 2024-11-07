@@ -1,4 +1,9 @@
-## [4.13.0] - 2024-11-07
+## [4.14.0] - 2024-11-07
+- Added missing min value check.
+- Fixed zero not being deleted if `showZeroValue` parameter is true.[23](https://github.com/IsaiasSantana/currency_textfield/issues/23)
+- Bump flutter_lints to 5.0.0.
+
+## [4.13.0] - 2024-11-06
 - Added `removeSymbol` parameter to let you define that controller will only show the formatted number.
 - Fixed tests.
 
