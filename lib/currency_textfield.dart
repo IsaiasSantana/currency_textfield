@@ -1,8 +1,7 @@
 library currency_textfield;
 
-import '/extensions.dart';
-import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:flutter/widgets.dart';
+import 'extensions.dart';
 
 /// A custom TextEditingController for currency input.
 ///
@@ -79,8 +78,15 @@ class CurrencyTextFieldController extends TextEditingController {
       _showZeroValue,
       _forceCursorToEnd,
       _removeSymbol;
-  final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
+
+  static final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late String _currencySymbol, _symbolSeparator;
+
+  // cache de escala para evitar pow() repetido
+  late final int _scaleInt = _numberOfDecimals == 0
+      ? 1
+      : List.filled(_numberOfDecimals, 10).fold<int>(1, (acc, v) => acc * v);
+  late final double _scale = _scaleInt.toDouble();
 
   String _previewsText = '';
   double _value = 0.0;
@@ -163,41 +169,43 @@ class CurrencyTextFieldController extends TextEditingController {
   }
 
   void _listener() {
-    if (_previewsText == text) {
+    final String t = text;
+
+    if (_previewsText == t) {
       if (_forceCursorToEnd) {
-        _setSelectionBy(offset: text.length);
+        selection = TextSelection.fromPosition(TextPosition(offset: t.length));
       }
       return;
     }
 
-    if (text.isEmpty) {
-      _zeroValue(clean: _checkCleanZeroText(text));
+    if (t.isEmpty) {
+      _zeroValue(clean: _checkCleanZeroText(t));
       return;
     }
 
-    checkNegative();
+    // mantém comportamento original: negativo só se permitido e quando começa com '-'
+    _isNegative = _enableNegative && t.startsWith('-');
 
-    if (text == '-') {
+    if (t == '-') {
       _previewsText = '-';
       return;
     }
 
-    late String clearText;
-
+    // limpa números só uma vez
+    String clearText;
     if (_currencyOnLeft) {
-      clearText = (_getOnlyNumbers(string: text) ?? '').trim();
+      clearText = (_getOnlyNumbers(string: t) ?? '').trim();
     } else {
-      if (text.lastChars(1).isNumeric()) {
-        clearText = (_getOnlyNumbers(string: text) ?? '').trim();
+      if (t.lastChars(1).isNumeric()) {
+        clearText = (_getOnlyNumbers(string: t) ?? '').trim();
       } else {
-        clearText =
-            (_getOnlyNumbers(string: text) ?? '').trim().allBeforeLastN(1);
+        clearText = (_getOnlyNumbers(string: t) ?? '').trim().allBeforeLastN(1);
       }
     }
 
+    // zero lógico igual ao original
     if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
-      _zeroValue(
-          forceNegative: text.endsWith('-'), clean: _checkCleanZeroText(text));
+      _zeroValue(forceNegative: t.endsWith('-'), clean: _checkCleanZeroText(t));
       return;
     }
 
@@ -206,17 +214,14 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    if (!_startWithSeparator) {
-      if (text.endsWith(_decimalSymbol)) {
-        _startWithSeparator = true;
-        clearText = clearText + '0' * _numberOfDecimals;
-      }
+    if (!_startWithSeparator && t.endsWith(_decimalSymbol)) {
+      _startWithSeparator = true;
+      clearText = clearText + '0' * _numberOfDecimals;
     }
 
     _value = _getDoubleValueFor(string: clearText);
 
-    _checkMinValue();
-    _checkMaxValue();
+    _clampValue();
 
     _changeText();
   }
@@ -226,15 +231,17 @@ class CurrencyTextFieldController extends TextEditingController {
       {double? initDoubleValue, int? initIntValue, bool init = false}) {
     if (initDoubleValue != null) {
       _value = initDoubleValue;
-      _updateValue();
     } else if (initIntValue != null) {
-      _value = initIntValue / pow(10, _numberOfDecimals);
-      _updateValue();
+      _value = initIntValue / _scale;
     } else {
       if (!init) {
         _value = 0;
-        _updateValue();
       }
+    }
+    if (initDoubleValue != null || initIntValue != null || !init) {
+      _normalizeNegative();
+      _clampValue();
+      _changeText();
     }
   }
 
@@ -250,39 +257,22 @@ class CurrencyTextFieldController extends TextEditingController {
     _changeText();
   }
 
-  void _updateValue() {
-    _checkMinValue();
-
+  void _normalizeNegative() {
     if (_value < 0) {
       if (!_enableNegative) {
-        _value = _value * -1;
+        _value = -_value;
+        _isNegative = false;
       } else {
         _isNegative = true;
       }
     } else {
       _isNegative = false;
     }
-    _checkMaxValue();
-
-    _changeText();
   }
 
-  ///function to check if the value is greater than maxValue.
-  void _checkMaxValue() {
-    if (_maxValue != null) {
-      if (_value > _maxValue!) {
-        _value = _maxValue!;
-      }
-    }
-  }
-
-  ///function to check if the value is lower than minValue.
-  void _checkMinValue() {
-    if (_minValue != null) {
-      if (_value < _minValue!) {
-        _value = _minValue!;
-      }
-    }
+  void _clampValue() {
+    if (_minValue != null && _value < _minValue!) _value = _minValue!;
+    if (_maxValue != null && _value > _maxValue!) _value = _maxValue!;
   }
 
   ///function to replace current maxValue.
@@ -292,7 +282,7 @@ class CurrencyTextFieldController extends TextEditingController {
     if (resetValue) {
       _value = 0;
     } else {
-      _checkMaxValue();
+      _clampValue();
     }
 
     _changeText();
@@ -305,7 +295,7 @@ class CurrencyTextFieldController extends TextEditingController {
     if (resetValue) {
       _value = 0;
     } else {
-      _checkMinValue();
+      _clampValue();
     }
 
     _changeText();
@@ -325,10 +315,16 @@ class CurrencyTextFieldController extends TextEditingController {
     if (_value == 0 && !_showZeroValue) {
       _previewsText = '';
     } else {
-      _previewsText = _composeCurrency(_applyMaskTo(value: _value));
+      final masked = _applyMaskTo(value: _value);
+      final sign = _isNegative ? '-' : '';
+      _previewsText = _currencyOnLeft
+          ? '$sign$_symbolSeparator$masked'
+          : '$sign$masked$_symbolSeparator';
     }
-    text = _previewsText;
-    _setSelectionBy(offset: text.length);
+    if (text != _previewsText) {
+      text = _previewsText;
+      selection = TextSelection.fromPosition(TextPosition(offset: text.length));
+    }
   }
 
   void _changeSymbolSeparator() {
@@ -339,10 +335,6 @@ class CurrencyTextFieldController extends TextEditingController {
     } else {
       _symbolSeparator = '';
     }
-  }
-
-  void _setSelectionBy({required int offset}) {
-    selection = TextSelection.fromPosition(TextPosition(offset: offset));
   }
 
   ///resets the controller to 0.
@@ -367,49 +359,45 @@ class CurrencyTextFieldController extends TextEditingController {
         currentText.length < _previewsText.length;
   }
 
+  // mantém assinatura original (String? -> String?)
   String? _getOnlyNumbers({String? string}) =>
       string?.replaceAll(_onlyNumbersRegex, '');
 
   double _getDoubleValueFor({required String string}) {
-    return (_isNegative ? -1 : 1) *
-        (double.tryParse(string) ?? 0.0) /
-        (_startWithSeparator ? pow(10, _numberOfDecimals) : 1);
-  }
-
-  String _composeCurrency(String value) {
-    return _currencyOnLeft
-        ? '${_negativeSign()}$_symbolSeparator$value'
-        : '${_negativeSign()}$value$_symbolSeparator';
-  }
-
-  String _negativeSign() {
-    return (_isNegative ? '-' : '');
+    final double raw = double.tryParse(string) ?? 0.0;
+    final double denom = _startWithSeparator ? _scale : 1.0;
+    return (_isNegative ? -raw : raw) / denom;
   }
 
   String _applyMaskTo({required double value}) {
-    final decimals = _startWithSeparator ? _numberOfDecimals : 0;
-    final List<String> textRepresentation = value
-        .abs()
-        .toStringAsFixed(decimals)
-        .replaceAll('.', '')
-        .split('')
-        .reversed
-        .toList(growable: true);
+    final int decimals = _startWithSeparator ? _numberOfDecimals : 0;
+    final double absVal = value.abs();
+    final int total = (absVal * (decimals == 0 ? 1 : _scale)).round();
 
-    int thousandPositionSymbol = decimals + 4;
+    int intPart, fracPart;
+    if (decimals == 0) {
+      intPart = total;
+      fracPart = 0;
+    } else {
+      intPart = total ~/ _scaleInt;
+      fracPart = total % _scaleInt;
+    }
+
+    // parte inteira com milhares (mesmo agrupamento do original)
+    final String intStr = intPart.toString();
+    final StringBuffer sb = StringBuffer();
+    for (int i = 0; i < intStr.length; i++) {
+      if (i > 0 && (intStr.length - i) % 3 == 0) sb.write(_thousandSymbol);
+      sb.write(intStr[i]);
+    }
 
     if (decimals > 0) {
-      textRepresentation.insert(decimals, _decimalSymbol);
-    } else {
-      thousandPositionSymbol -= 1;
+      final fracStr = fracPart.toString().padLeft(decimals, '0');
+      sb.write(_decimalSymbol);
+      sb.write(fracStr);
     }
 
-    while (textRepresentation.length > thousandPositionSymbol) {
-      textRepresentation.insert(thousandPositionSymbol, _thousandSymbol);
-      thousandPositionSymbol += 4;
-    }
-
-    return textRepresentation.reversed.join();
+    return sb.toString();
   }
 
   @override

@@ -247,4 +247,102 @@ void main() {
     controller.clear();
     expect(controller.text, "");
   });
+
+  test('startWithSeparator=false mantém inteiros até digitar separador', () {
+    final c = CurrencyTextFieldController(startWithSeparator: false);
+    c.text = '1234';
+    expect(c.text, 'R\$ 1.234'); // sem casas
+    // ao "digitar" a vírgula, passa a formatar com decimais
+    c.text = '1234,';
+    expect(c.text, 'R\$ 1.234,00');
+  });
+
+  test('maxDigits: aceita limite exato e bloqueia acima', () {
+    final c = CurrencyTextFieldController(maxDigits: 4);
+    c.text = '1234';
+    expect(c.text, 'R\$ 12,34');
+    c.text = '12345';
+    expect(c.text, 'R\$ 12,34'); // mantém anterior
+  });
+
+  test('cursor força para o final após formatação', () {
+    final c = CurrencyTextFieldController();
+    c.text = '1244';
+    expect(c.selection.baseOffset, c.text.length);
+    expect(c.selection.extentOffset, c.text.length);
+  });
+
+  test('thousand/decimal custom e agrupamento grande', () {
+    final c = CurrencyTextFieldController(
+      decimalSymbol: '.',
+      thousandSymbol: ',',
+      initDoubleValue: 1234567,
+    );
+    expect(c.text, 'R\$ 1,234,567.00');
+  });
+
+  test('removeSymbol=true remove símbolo e mantém valores/derivados', () {
+    final c =
+        CurrencyTextFieldController(initDoubleValue: 300, removeSymbol: true);
+    expect(c.text, '300,00');
+    expect(c.textWithoutCurrencySymbol, '300,00');
+    expect(c.doubleTextWithoutCurrencySymbol, '300.00');
+    expect(c.currencySymbol, 'R\$'); // símbolo interno preservado
+  });
+
+  test('currencyOnLeft=false com removeSymbol=true', () {
+    final c = CurrencyTextFieldController(
+      initDoubleValue: 12.34,
+      currencyOnLeft: false,
+      removeSymbol: true,
+    );
+    expect(c.text, '12,34'); // sem separador/símbolo à direita
+  });
+
+  test('intValue e negativo durante digitação simples', () {
+    final c = CurrencyTextFieldController();
+    c.text = '-100';
+    expect(c.text, '-R\$ 1,00');
+    expect(c.intValue, -100);
+    expect(c.doubleValue, -1.00);
+  });
+
+  test('replaceMaxValue com resetValue=true zera e limpa texto', () {
+    final c = CurrencyTextFieldController(initDoubleValue: 123);
+    c.replaceMaxValue(50, resetValue: true);
+    expect(c.doubleValue, 0.0);
+    expect(c.text, '');
+  });
+
+  test('replaceMinValue com resetValue=true zera e limpa texto', () {
+    final c = CurrencyTextFieldController(initDoubleValue: 123);
+    c.replaceMinValue(200, resetValue: true);
+    expect(c.doubleValue, 0.0);
+    expect(c.text, '');
+  });
+
+  test('doubleTextWithoutCurrencySymbol para vazio retorna "0"', () {
+    final c = CurrencyTextFieldController();
+    expect(c.text, '');
+    expect(c.doubleTextWithoutCurrencySymbol, '0');
+  });
+
+  test('numberOfDecimals=0 ao digitar e valores derivados', () {
+    final c = CurrencyTextFieldController(numberOfDecimals: 0);
+    c.text = '19500';
+    expect(c.textWithoutCurrencySymbol, '19.500');
+    expect(c.doubleValue, 19500.0);
+    expect(c.intValue, 19500);
+    expect(c.doubleTextWithoutCurrencySymbol, '19500');
+  });
+
+  test('replaceCurrencySymbol com currencyOnLeft=false mantém formato', () {
+    final c = CurrencyTextFieldController(
+      initIntValue: 195,
+      currencyOnLeft: false,
+    );
+    expect(c.text, '1,95 R\$');
+    c.replaceCurrencySymbol('USD');
+    expect(c.text, '1,95 USD');
+  });
 }

@@ -1,3 +1,8 @@
+## [4.15.0] - 2024-11-07
+- Bump flutter_lints.
+- Added tests
+- Improved code.
+
 ## [4.14.1] - 2024-11-07
 - Fixed bugs.
 - Added tests.

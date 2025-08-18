@@ -4,6 +4,8 @@
 
 A Controller for currency text input
 
+[![Buy Me A Coffee](https://img.shields.io/badge/☕%20Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/gian.bettega)
+
 ![sample](doc/gif.gif)
 
 ## Install
