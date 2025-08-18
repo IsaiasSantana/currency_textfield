@@ -6,7 +6,6 @@
 A Controller for currency text input
 
 ## Demo
-
 ![sample](https://raw.githubusercontent.com/IsaiasSantana/currency_textfield/master/doc/gif.gif)
 
 ## Install
