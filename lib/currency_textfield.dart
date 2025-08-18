@@ -79,13 +79,18 @@ class CurrencyTextFieldController extends TextEditingController {
       _forceCursorToEnd,
       _removeSymbol;
 
+  //única RegExp para todas as instâncias
   static final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late String _currencySymbol, _symbolSeparator;
 
-  // cache de escala para evitar pow() repetido
-  late final int _scaleInt = _numberOfDecimals == 0
-      ? 1
-      : List.filled(_numberOfDecimals, 10).fold<int>(1, (acc, v) => acc * v);
+  //Cache da escala sem alocações temporárias
+  late final int _scaleInt = (() {
+    var s = 1;
+    for (var i = 0; i < _numberOfDecimals; i++) {
+      s *= 10;
+    }
+    return s;
+  })();
   late final double _scale = _scaleInt.toDouble();
 
   String _previewsText = '';
@@ -161,10 +166,12 @@ class CurrencyTextFieldController extends TextEditingController {
         _forceCursorToEnd = forceCursorToEnd,
         _removeSymbol = removeSymbol {
     _changeSymbolSeparator();
+    // não muda o texto quando não há valor inicial (mantém compatibilidade com seus testes)
     forceValue(
-        initDoubleValue: initDoubleValue,
-        initIntValue: initIntValue,
-        init: true);
+      initDoubleValue: initDoubleValue,
+      initIntValue: initIntValue,
+      init: true,
+    );
     addListener(_listener);
   }
 
@@ -183,7 +190,7 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    // mantém comportamento original: negativo só se permitido e quando começa com '-'
+    // negativo só se permitido e quando começa com '-'
     _isNegative = _enableNegative && t.startsWith('-');
 
     if (t == '-') {
@@ -191,20 +198,20 @@ class CurrencyTextFieldController extends TextEditingController {
       return;
     }
 
-    // limpa números só uma vez
+    // Limpa números uma vez (trim é redundante: não restam espaços após regex)
     String clearText;
     if (_currencyOnLeft) {
-      clearText = (_getOnlyNumbers(string: t) ?? '').trim();
+      clearText = _getOnlyNumbers(string: t) ?? '';
     } else {
       if (t.lastChars(1).isNumeric()) {
-        clearText = (_getOnlyNumbers(string: t) ?? '').trim();
+        clearText = _getOnlyNumbers(string: t) ?? '';
       } else {
-        clearText = (_getOnlyNumbers(string: t) ?? '').trim().allBeforeLastN(1);
+        clearText = (_getOnlyNumbers(string: t) ?? '').allBeforeLastN(1);
       }
     }
 
-    // zero lógico igual ao original
-    if ((double.tryParse(clearText) ?? 0.0) == 0.0) {
+    // Checagem de "zero" sem parse (vazio ou apenas zeros)
+    if (_isAllZeros(clearText)) {
       _zeroValue(forceNegative: t.endsWith('-'), clean: _checkCleanZeroText(t));
       return;
     }
@@ -238,6 +245,7 @@ class CurrencyTextFieldController extends TextEditingController {
         _value = 0;
       }
     }
+    // Só atualiza o texto quando houver valor inicial OU não estivermos no init do construtor
     if (initDoubleValue != null || initIntValue != null || !init) {
       _normalizeNegative();
       _clampValue();
@@ -367,6 +375,15 @@ class CurrencyTextFieldController extends TextEditingController {
     final double raw = double.tryParse(string) ?? 0.0;
     final double denom = _startWithSeparator ? _scale : 1.0;
     return (_isNegative ? -raw : raw) / denom;
+  }
+
+  // verificação leve de "apenas zeros" (inclui string vazia)
+  bool _isAllZeros(String s) {
+    if (s.isEmpty) return true;
+    for (var i = 0; i < s.length; i++) {
+      if (s.codeUnitAt(i) != 48) return false; // '0'
+    }
+    return true;
   }
 
   String _applyMaskTo({required double value}) {
