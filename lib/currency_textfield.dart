@@ -78,7 +78,10 @@ class CurrencyTextFieldController extends TextEditingController {
       _showZeroValue,
       _forceCursorToEnd,
       _removeSymbol;
-
+  final bool _indianGrouping; // 3-2-2-… (Lakhs/Crores)
+  final bool _negativeParentheses; // exibe negativos entre parênteses
+  final bool _enableAbbreviations; // "1k", "2.5m", "3b" etc.
+  final Map<String, double> _abbreviations; // chaves em minúsculas
   //única RegExp para todas as instâncias
   static final RegExp _onlyNumbersRegex = RegExp(r'[^\d]');
   late String _currencySymbol, _symbolSeparator;
@@ -146,6 +149,10 @@ class CurrencyTextFieldController extends TextEditingController {
     bool showZeroValue = false,
     bool forceCursorToEnd = true,
     bool removeSymbol = false,
+    bool indianGrouping = false,
+    bool negativeParentheses = false,
+    bool enableAbbreviations = false,
+    Map<String, double>? abbreviations,
   })  : assert(thousandSymbol != decimalSymbol,
             "thousandSymbol must be different from decimalSymbol."),
         assert(numberOfDecimals >= 0,
@@ -164,7 +171,12 @@ class CurrencyTextFieldController extends TextEditingController {
         _resetSeparator = !startWithSeparator,
         _showZeroValue = showZeroValue,
         _forceCursorToEnd = forceCursorToEnd,
-        _removeSymbol = removeSymbol {
+        _removeSymbol = removeSymbol,
+        _indianGrouping = indianGrouping,
+        _negativeParentheses = negativeParentheses,
+        _enableAbbreviations = enableAbbreviations,
+        _abbreviations = (abbreviations ?? const {'k': 1e3, 'm': 1e6, 'b': 1e9})
+            .map((k, v) => MapEntry(k.toLowerCase(), v.toDouble())) {
     _changeSymbolSeparator();
     // não muda o texto quando não há valor inicial (mantém compatibilidade com seus testes)
     forceValue(
@@ -196,6 +208,23 @@ class CurrencyTextFieldController extends TextEditingController {
     if (t == '-') {
       _previewsText = '-';
       return;
+    }
+
+    if (_enableAbbreviations) {
+      final _abbrMatch = _matchAbbreviation(t);
+      if (_abbrMatch != null) {
+        final base = _abbrMatch.$1;
+        final mult = _abbrMatch.$2;
+        _value = base * mult;
+        _normalizeNegative();
+        if (!_startWithSeparator && _numberOfDecimals > 0) {
+          _startWithSeparator = true;
+        }
+
+        _clampValue();
+        _changeText();
+        return;
+      }
     }
 
     // Limpa números uma vez (trim é redundante: não restam espaços após regex)
@@ -324,10 +353,18 @@ class CurrencyTextFieldController extends TextEditingController {
       _previewsText = '';
     } else {
       final masked = _applyMaskTo(value: _value);
-      final sign = _isNegative ? '-' : '';
-      _previewsText = _currencyOnLeft
-          ? '$sign$_symbolSeparator$masked'
-          : '$sign$masked$_symbolSeparator';
+      if (_isNegative && _negativeParentheses) {
+        // Exibe toda a string entre parênteses, sem sinal de menos
+        final core = _currencyOnLeft
+            ? '$_symbolSeparator$masked'
+            : '$masked$_symbolSeparator';
+        _previewsText = '($core)';
+      } else {
+        final sign = _isNegative ? '-' : '';
+        _previewsText = _currencyOnLeft
+            ? '$sign$_symbolSeparator$masked'
+            : '$sign$masked$_symbolSeparator';
+      }
     }
     if (text != _previewsText) {
       text = _previewsText;
@@ -386,6 +423,37 @@ class CurrencyTextFieldController extends TextEditingController {
     return true;
   }
 
+  // --- Agrupamento ocidental vs indiano ---
+  String _formatIntWestern(String intStr) {
+    final len = intStr.length;
+    if (len <= 3) return intStr; // short-circuit
+    final sb = StringBuffer();
+    for (int i = 0; i < len; i++) {
+      if (i > 0 && (len - i) % 3 == 0) sb.write(_thousandSymbol);
+      sb.write(intStr[i]);
+    }
+    return sb.toString();
+  }
+
+  String _formatIntIndian(String intStr) {
+    final len = intStr.length;
+    if (len <= 3) return intStr; // short-circuit
+    // separa últimos 3 e o prefixo
+    final prefix = intStr.substring(0, len - 3);
+    final suffix = intStr.substring(len - 3);
+    // No prefixo, grupos de 2 da esquerda p/ direita
+    final sb = StringBuffer();
+    final plen = prefix.length;
+    for (int i = 0; i < plen; i++) {
+      // sempre que restarem múltiplos de 2 caracteres à direita, inserir separador
+      if (i > 0 && (plen - i) % 2 == 0) sb.write(_thousandSymbol);
+      sb.write(prefix[i]);
+    }
+    sb.write(_thousandSymbol);
+    sb.write(suffix);
+    return sb.toString();
+  }
+
   String _applyMaskTo({required double value}) {
     final int decimals = _startWithSeparator ? _numberOfDecimals : 0;
     final double absVal = value.abs();
@@ -401,20 +469,51 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     // parte inteira com milhares (mesmo agrupamento do original)
-    final String intStr = intPart.toString();
-    final StringBuffer sb = StringBuffer();
-    for (int i = 0; i < intStr.length; i++) {
-      if (i > 0 && (intStr.length - i) % 3 == 0) sb.write(_thousandSymbol);
-      sb.write(intStr[i]);
-    }
+    final String raw = intPart.toString();
+    final String intFormatted =
+        _indianGrouping ? _formatIntIndian(raw) : _formatIntWestern(raw);
 
     if (decimals > 0) {
       final fracStr = fracPart.toString().padLeft(decimals, '0');
-      sb.write(_decimalSymbol);
-      sb.write(fracStr);
+      return '$intFormatted$_decimalSymbol$fracStr';
     }
+    return intFormatted;
+  }
 
-    return sb.toString();
+  /// Detecta entradas como "1k", "2.5m", "3B" e retorna (base, multiplicador).
+  /// Retorna null se não houver abreviação válida.
+  (double, double)? _matchAbbreviation(String raw) {
+    // remove espaços entre número e sufixo, mas mantém possíveis '.' ou ','
+    final s = raw.trim();
+    if (s.isEmpty) return null;
+
+    // ignora símbolo e separadores já aplicados (quando usuário colar algo formatado)
+    var cleaned = s.replaceFirst(_symbolSeparator, '');
+    // Considera possíveis sinais no começo e final (ex.: "R$ 0,00-")
+    // Mantemos só para parsing de abreviação:
+    cleaned = cleaned.replaceAll(' ', '');
+
+    // Verifica último char alfabético
+    final last =
+        cleaned.isNotEmpty ? cleaned.codeUnitAt(cleaned.length - 1) : null;
+    if (last == null) return null;
+    final isAlpha = (last >= 65 && last <= 90) || (last >= 97 && last <= 122);
+    if (!isAlpha) return null;
+
+    final suffix = String.fromCharCode(last).toLowerCase();
+    final mult = _abbreviations[suffix];
+    if (mult == null) return null;
+
+    // Base numérica antes do sufixo
+    final numberPart = cleaned.substring(0, cleaned.length - 1);
+    // Converte vírgula em ponto para parsing mais permissivo
+    final baseStr = numberPart
+        .replaceAll(_thousandSymbol, '')
+        .replaceAll(_decimalSymbol, '.');
+    final base = double.tryParse(baseStr);
+    if (base == null) return null;
+
+    return (base, mult);
   }
 
   @override

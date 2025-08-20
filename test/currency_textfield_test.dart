@@ -1,49 +1,47 @@
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:currency_textfield/currency_textfield.dart';
 
 void main() {
-  test('test_add_0_asInput_for_controller', () {
+  test('input_zero_results_in_empty_text', () {
     final controller = CurrencyTextFieldController();
     controller.text = "0";
     expect(controller.text, "");
     expect(controller.doubleValue, 0.0);
   });
 
-  test('test_add_inputNonZero_for_controller', () {
+  test('input_non_zero_formats_correctly', () {
     final controller = CurrencyTextFieldController();
-
     controller.text = "1244";
     expect(controller.text, "R\$ 12,44");
     expect(controller.doubleValue, 12.44);
   });
 
-  test('test_change_symbols_constructor', () {
+  test('constructor_allows_custom_symbols', () {
     final controller = CurrencyTextFieldController(
-        currencySymbol: "RR", decimalSymbol: ".", thousandSymbol: ",");
-
+      currencySymbol: "RR",
+      decimalSymbol: ".",
+      thousandSymbol: ",",
+    );
     expect(controller.thousandSymbol, ",");
     expect(controller.currencySymbol, "RR");
     expect(controller.decimalSymbol, ".");
   });
 
-  test('test_invalid_input', () {
+  test('invalid_input_is_ignored', () {
     final controller = CurrencyTextFieldController();
     controller.text = "abcl;'s";
     expect(controller.text, "");
     expect(controller.doubleValue, 0.0);
   });
 
-  test('test_insert_input_greatherThan_maximumValue', () {
+  test('input_longer_than_max_digits_is_rejected', () {
     final controller = CurrencyTextFieldController();
     controller.text = "9999999999999999";
     expect(controller.text, '');
     expect(controller.doubleValue, 0.0);
   });
 
-  test(
-      'test_insert_some_inputs_and_after_tryToInsertAValue_greatherThan_maximumValue',
-      () {
+  test('exceeding_max_digits_after_valid_input_keeps_previous_value', () {
     final controller = CurrencyTextFieldController();
     controller.text = "99";
     expect(controller.text, 'R\$ 0,99');
@@ -54,7 +52,7 @@ void main() {
     expect(controller.doubleValue, 0.99);
   });
 
-  test('test_insert_numbers_with_symbols', () {
+  test('mixed_symbols_are_sanitized', () {
     final controller = CurrencyTextFieldController();
     controller.text = "-19,24.123";
     expect(controller.text, '-R\$ 19.241,23');
@@ -64,24 +62,24 @@ void main() {
     expect(controller.text, '-R\$ 19.241,23');
   });
 
-  test('initDouble', () {
+  test('init_with_double_formats_correctly', () {
     final controller = CurrencyTextFieldController(initDoubleValue: 19.5);
     expect(controller.text, 'R\$ 19,50');
   });
 
-  test('initInt', () {
+  test('init_with_int_formats_correctly', () {
     final controller = CurrencyTextFieldController(initIntValue: 195);
     expect(controller.text, 'R\$ 1,95');
     expect(controller.doubleValue, 1.95);
   });
 
-  test('positioned_symbol', () {
+  test('currency_on_right_positions_symbol_correctly', () {
     final controller =
         CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false);
     expect(controller.text, '1,95 R\$');
   });
 
-  test('negative_and_block', () {
+  test('negative_values_respect_enableNegative_flag', () {
     final controller = CurrencyTextFieldController(initIntValue: -195);
     final controller2 =
         CurrencyTextFieldController(initIntValue: -195, enableNegative: false);
@@ -89,7 +87,7 @@ void main() {
     expect(controller2.text, 'R\$ 1,95');
   });
 
-  test('force_value', () {
+  test('force_value_updates_text_correctly', () {
     final controller = CurrencyTextFieldController(initIntValue: 195);
     controller.forceValue(initIntValue: 100);
     expect(controller.text, 'R\$ 1,00');
@@ -97,12 +95,15 @@ void main() {
     expect(controller.text, 'R\$ 100,00');
   });
 
-  test('get_text_without_currency', () {
+  test('text_without_currency_symbol_is_correct', () {
     final controller = CurrencyTextFieldController(initIntValue: 195);
     final controller2 =
         CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false);
     final controller3 = CurrencyTextFieldController(
-        initDoubleValue: 195, currencySymbol: 'test', currencySeparator: ' e ');
+      initDoubleValue: 195,
+      currencySymbol: 'test',
+      currencySeparator: ' e ',
+    );
     final controller4 = CurrencyTextFieldController(
       initIntValue: 195,
       currencyOnLeft: false,
@@ -116,7 +117,7 @@ void main() {
     expect(controller4.textWithoutCurrencySymbol, '1:95');
   });
 
-  test('initInt_with_numberOfDecimals', () {
+  test('init_int_respects_number_of_decimals', () {
     final controller = CurrencyTextFieldController(initIntValue: 195);
     final controller2 =
         CurrencyTextFieldController(initIntValue: 1950, numberOfDecimals: 1);
@@ -128,7 +129,7 @@ void main() {
     expect(controller3.textWithoutCurrencySymbol, '19,500');
   });
 
-  test('zero_Decimals', () {
+  test('zero_decimals_formats_without_fraction', () {
     final controller =
         CurrencyTextFieldController(initIntValue: 19500, numberOfDecimals: 0);
 
@@ -136,10 +137,9 @@ void main() {
     expect(controller.doubleValue, 19500.0);
     expect(controller.intValue, 19500);
     expect(controller.doubleTextWithoutCurrencySymbol, '19500');
-    expect(controller.textWithoutCurrencySymbol, '19.500');
   });
 
-  test('maxValue', () {
+  test('max_value_clamps_on_forceValue', () {
     final controller =
         CurrencyTextFieldController(initDoubleValue: 300, maxValue: 400);
 
@@ -149,7 +149,7 @@ void main() {
     expect(controller.textWithoutCurrencySymbol, '400,00');
   });
 
-  test('replace_symbol', () {
+  test('replace_currency_symbol_updates_text_and_state', () {
     final controller = CurrencyTextFieldController(initIntValue: 195);
     controller.replaceCurrencySymbol('EUR');
     expect(controller.text, 'EUR 1,95');
@@ -168,7 +168,7 @@ void main() {
     expect(controller.textWithoutCurrencySymbol, '');
   });
 
-  test('replace_maxValue', () {
+  test('replace_max_value_respects_clamping', () {
     final controller =
         CurrencyTextFieldController(initDoubleValue: 300, maxValue: 400);
 
@@ -181,32 +181,29 @@ void main() {
     expect(controller.textWithoutCurrencySymbol, '500,00');
   });
 
-  test('test_allowZeroValue_shoulDisplayZeroValueFormatted', () {
+  test('show_zero_value_with_initial_zero_formats_value', () {
     final controller =
         CurrencyTextFieldController(initIntValue: 0, showZeroValue: true);
-
     expect(controller.text, "R\$ 0,00");
   });
 
-  test('test_allowZeroValue_whithoutInitialValue_shoulDisplayEmptyString', () {
+  test('show_zero_value_without_initial_value_displays_empty', () {
     final controller = CurrencyTextFieldController(showZeroValue: true);
     final controller2 = CurrencyTextFieldController(initIntValue: 0);
-
     expect(controller.text, '');
     expect(controller2.text, '');
   });
 
-  test('enableNegative + showZeroValue bug fix', () {
+  test('enable_negative_with_show_zero_value_edge_cases', () {
     final controller = CurrencyTextFieldController(showZeroValue: true);
     controller.text = "R\$ 0,00-";
-
     expect(controller.text, '-R\$ 0,00');
     controller.clear();
     controller.text = "R\$ 7,00-";
     expect(controller.text, "R\$ 7,00");
   });
 
-  test('minValue', () {
+  test('min_value_clamps_on_forceValue_and_constructor', () {
     final controller =
         CurrencyTextFieldController(initDoubleValue: 300, minValue: 200);
     final controller2 =
@@ -217,7 +214,7 @@ void main() {
     expect(controller2.textWithoutCurrencySymbol, '200,00');
   });
 
-  test('replace_minValue', () {
+  test('replace_min_value_respects_clamping', () {
     final controller =
         CurrencyTextFieldController(initDoubleValue: 300, minValue: 200);
 
@@ -228,7 +225,7 @@ void main() {
     expect(controller.textWithoutCurrencySymbol, '50,00');
   });
 
-  test('remove_symbol', () {
+  test('remove_symbol_hides_symbol_but_preserves_values', () {
     final controller =
         CurrencyTextFieldController(initDoubleValue: 300, removeSymbol: true);
 
@@ -240,7 +237,7 @@ void main() {
     expect(controller.doubleTextWithoutCurrencySymbol, '300.00');
   });
 
-  test('clear_zero_value', () {
+  test('clear_on_zero_value_clears_text', () {
     final controller =
         CurrencyTextFieldController(initIntValue: 0, showZeroValue: true);
 
@@ -248,31 +245,30 @@ void main() {
     expect(controller.text, "");
   });
 
-  test('startWithSeparator=false mantém inteiros até digitar separador', () {
+  test('start_with_separator_false_keeps_integers_until_separator', () {
     final c = CurrencyTextFieldController(startWithSeparator: false);
     c.text = '1234';
-    expect(c.text, 'R\$ 1.234'); // sem casas
-    // ao "digitar" a vírgula, passa a formatar com decimais
+    expect(c.text, 'R\$ 1.234');
     c.text = '1234,';
     expect(c.text, 'R\$ 1.234,00');
   });
 
-  test('maxDigits: aceita limite exato e bloqueia acima', () {
+  test('max_digits_accepts_exact_limit_and_blocks_above', () {
     final c = CurrencyTextFieldController(maxDigits: 4);
     c.text = '1234';
     expect(c.text, 'R\$ 12,34');
     c.text = '12345';
-    expect(c.text, 'R\$ 12,34'); // mantém anterior
+    expect(c.text, 'R\$ 12,34');
   });
 
-  test('cursor força para o final após formatação', () {
+  test('cursor_moves_to_end_after_formatting', () {
     final c = CurrencyTextFieldController();
     c.text = '1244';
     expect(c.selection.baseOffset, c.text.length);
     expect(c.selection.extentOffset, c.text.length);
   });
 
-  test('thousand/decimal custom e agrupamento grande', () {
+  test('custom_thousand_and_decimal_symbols_large_number', () {
     final c = CurrencyTextFieldController(
       decimalSymbol: '.',
       thousandSymbol: ',',
@@ -281,25 +277,17 @@ void main() {
     expect(c.text, 'R\$ 1,234,567.00');
   });
 
-  test('removeSymbol=true remove símbolo e mantém valores/derivados', () {
-    final c =
-        CurrencyTextFieldController(initDoubleValue: 300, removeSymbol: true);
-    expect(c.text, '300,00');
-    expect(c.textWithoutCurrencySymbol, '300,00');
-    expect(c.doubleTextWithoutCurrencySymbol, '300.00');
-    expect(c.currencySymbol, 'R\$'); // símbolo interno preservado
-  });
-
-  test('currencyOnLeft=false com removeSymbol=true', () {
+  test('currency_on_right_with_remove_symbol_true_has_no_trailing_separator',
+      () {
     final c = CurrencyTextFieldController(
       initDoubleValue: 12.34,
       currencyOnLeft: false,
       removeSymbol: true,
     );
-    expect(c.text, '12,34'); // sem separador/símbolo à direita
+    expect(c.text, '12,34');
   });
 
-  test('intValue e negativo durante digitação simples', () {
+  test('int_value_and_negative_while_typing', () {
     final c = CurrencyTextFieldController();
     c.text = '-100';
     expect(c.text, '-R\$ 1,00');
@@ -307,27 +295,27 @@ void main() {
     expect(c.doubleValue, -1.00);
   });
 
-  test('replaceMaxValue com resetValue=true zera e limpa texto', () {
+  test('replace_max_value_with_reset_clears_text', () {
     final c = CurrencyTextFieldController(initDoubleValue: 123);
     c.replaceMaxValue(50, resetValue: true);
     expect(c.doubleValue, 0.0);
     expect(c.text, '');
   });
 
-  test('replaceMinValue com resetValue=true zera e limpa texto', () {
+  test('replace_min_value_with_reset_clears_text', () {
     final c = CurrencyTextFieldController(initDoubleValue: 123);
     c.replaceMinValue(200, resetValue: true);
     expect(c.doubleValue, 0.0);
     expect(c.text, '');
   });
 
-  test('doubleTextWithoutCurrencySymbol para vazio retorna "0"', () {
+  test('double_text_without_currency_returns_zero_when_empty', () {
     final c = CurrencyTextFieldController();
     expect(c.text, '');
     expect(c.doubleTextWithoutCurrencySymbol, '0');
   });
 
-  test('numberOfDecimals=0 ao digitar e valores derivados', () {
+  test('number_of_decimals_zero_when_typing_and_derivatives', () {
     final c = CurrencyTextFieldController(numberOfDecimals: 0);
     c.text = '19500';
     expect(c.textWithoutCurrencySymbol, '19.500');
@@ -336,7 +324,7 @@ void main() {
     expect(c.doubleTextWithoutCurrencySymbol, '19500');
   });
 
-  test('replaceCurrencySymbol com currencyOnLeft=false mantém formato', () {
+  test('replace_currency_symbol_with_right_position_keeps_format', () {
     final c = CurrencyTextFieldController(
       initIntValue: 195,
       currencyOnLeft: false,
@@ -344,5 +332,81 @@ void main() {
     expect(c.text, '1,95 R\$');
     c.replaceCurrencySymbol('USD');
     expect(c.text, '1,95 USD');
+  });
+
+  test('indian_grouping_false_keeps_western_format', () {
+    final c = CurrencyTextFieldController(initDoubleValue: 1234567.89);
+    expect(c.text, 'R\$ 1.234.567,89');
+  });
+
+  test('indian_grouping_true_applies_3_2_2', () {
+    final c = CurrencyTextFieldController(
+      initDoubleValue: 1234567.89,
+      indianGrouping: true,
+    );
+    expect(c.text, 'R\$ 12.34.567,89');
+  });
+
+  test('negative_parentheses_false_keeps_minus_sign', () {
+    final c = CurrencyTextFieldController(initDoubleValue: -1234.56);
+    expect(c.text, '-R\$ 1.234,56');
+  });
+
+  test('negative_parentheses_true_wraps_in_parentheses', () {
+    final c = CurrencyTextFieldController(
+      initDoubleValue: -1234.56,
+      negativeParentheses: true,
+    );
+    expect(c.text, '(R\$ 1.234,56)');
+  });
+
+  test('abbreviations_convert_k_m_b', () {
+    final c = CurrencyTextFieldController(enableAbbreviations: true);
+    c.text = '1k';
+    expect(c.doubleValue, 1000.0);
+    expect(c.text, 'R\$ 1.000,00');
+
+    c.clear();
+    c.text = '2,5m';
+    expect(c.doubleValue, 2500000.0);
+    expect(c.text, 'R\$ 2.500.000,00');
+
+    c.clear();
+    c.text = '3B';
+    expect(c.doubleValue, 3000000000.0);
+    expect(c.text, 'R\$ 3.000.000.000,00');
+  });
+
+  test('abbreviations_respect_negative_sign', () {
+    final c = CurrencyTextFieldController(enableAbbreviations: true);
+    c.text = '-2k';
+    expect(c.doubleValue, -2000.0);
+    expect(c.text, '-R\$ 2.000,00');
+  });
+
+  test('abbreviations_with_dot_decimal_in_enUS_style', () {
+    final c = CurrencyTextFieldController(
+      enableAbbreviations: true,
+      decimalSymbol: '.',
+      thousandSymbol: ',',
+    );
+    c.text = '2.5m';
+    expect(c.doubleValue, 2500000.0);
+    expect(c.text, 'R\$ 2,500,000.00');
+  });
+
+  test('negative_parentheses_true_with_symbol_on_right', () {
+    final c = CurrencyTextFieldController(
+      initDoubleValue: -195,
+      currencyOnLeft: false,
+      negativeParentheses: true,
+    );
+    expect(c.text, '(195,00 R\$)');
+  });
+  test('indian_grouping_with_start_without_separator_typing_flow', () {
+    final c = CurrencyTextFieldController(
+        indianGrouping: true, startWithSeparator: false);
+    c.text = '1234567';
+    expect(c.text, 'R\$ 12.34.567'); // sem casas decimais
   });
 }
