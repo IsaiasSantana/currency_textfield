@@ -56,8 +56,6 @@ class CurrencyTextFieldController extends TextEditingController {
   /// If `true`, the currency symbol is not rendered in [text], but it is preserved internally.
   final bool _removeSymbol;
 
-  // --- New optional features (all default to disabled / no behavior change) ---
-
   /// If `true`, use Indian digit grouping for the integer part (3-2-2-… pattern).
   final bool _indianGrouping;
 
@@ -89,12 +87,21 @@ class CurrencyTextFieldController extends TextEditingController {
   })();
   late final double _scale = _scaleInt.toDouble();
 
+  late final bool _symbolIsPrefix = _currencyOnLeft;
+  late final bool _decimalIsDot = _decimalSymbol == '.';
+  late final int _thousandLen = _thousandSymbol.length;
+  int _symbolSepLen = 0; // updated in _changeSymbolSeparator()
+
   String _previewsText = '';
   double _value = 0.0;
   double? _maxValue;
   double? _minValue;
   bool _isNegative = false;
   late bool _startWithSeparator;
+
+  String _lastClearText = '';
+  bool _lastIsNegative = false;
+  late bool _lastStartWithSeparator;
 
   /// Returns the numeric part as [double], rounded to [_numberOfDecimals].
   double get doubleValue => _value.toPrecision(_numberOfDecimals);
@@ -115,19 +122,18 @@ class CurrencyTextFieldController extends TextEditingController {
       (int.tryParse(_getOnlyNumbers(string: text) ?? '') ?? 0);
 
   /// Returns the formatted text without the currency symbol (keeps separators).
-  String get textWithoutCurrencySymbol =>
-      text.replaceFirst(_symbolSeparator, '');
+  String get textWithoutCurrencySymbol => _stripCurrencySymbol(text);
 
-  /// Returns the formatted number as a string normalized to a "double-like" format:
+  /// Returns the formatted number normalized as a "double-like" string:
   /// - removes thousands separators
   /// - uses "." as decimal separator
   /// - returns "0" if empty
-  String get doubleTextWithoutCurrencySymbol => text != ''
-      ? text
-          .replaceFirst(_symbolSeparator, '')
-          .replaceAll(thousandSymbol, '')
-          .replaceFirst(decimalSymbol, '.')
-      : '0';
+  String get doubleTextWithoutCurrencySymbol {
+    final s = text;
+    if (s.isEmpty) return '0';
+    final noSymbol = _stripCurrencySymbol(s);
+    return _normalizeNumericString(noSymbol);
+  }
 
   /// Creates a currency-aware [TextEditingController].
   ///
@@ -211,10 +217,10 @@ class CurrencyTextFieldController extends TextEditingController {
         _indianGrouping = indianGrouping,
         _negativeParentheses = negativeParentheses,
         _enableAbbreviations = enableAbbreviations,
-        _abbreviations = (abbreviations ??
-                const {'k': 1e3, 'm': 1e6, 'b': 1e9})
+        _abbreviations = (abbreviations ?? const {'k': 1e3, 'm': 1e6, 'b': 1e9})
             .map((k, v) => MapEntry(k.toLowerCase(), v.toDouble())) {
     _changeSymbolSeparator();
+    _lastStartWithSeparator = _startWithSeparator;
     forceValue(
       initDoubleValue: initDoubleValue,
       initIntValue: initIntValue,
@@ -228,21 +234,31 @@ class CurrencyTextFieldController extends TextEditingController {
 
     if (_previewsText == t) {
       if (_forceCursorToEnd) {
-        selection = TextSelection.fromPosition(TextPosition(offset: t.length));
+        if (!(selection.isCollapsed && selection.end == t.length)) {
+          selection =
+              TextSelection.fromPosition(TextPosition(offset: t.length));
+        }
       }
       return;
     }
 
     if (t.isEmpty) {
       _zeroValue(clean: _checkCleanZeroText(t));
+      _lastClearText = '';
+      _lastIsNegative = false;
+      _lastStartWithSeparator = _startWithSeparator;
       return;
     }
 
     // Negative only if allowed and starting with '-'
     _isNegative = _enableNegative && t.startsWith('-');
 
+    // In-progress typing: keep plain minus
     if (t == '-') {
       _previewsText = '-';
+      _lastClearText = '';
+      _lastIsNegative = _isNegative;
+      _lastStartWithSeparator = _startWithSeparator;
       return;
     }
 
@@ -259,6 +275,9 @@ class CurrencyTextFieldController extends TextEditingController {
         }
         _clampValue();
         _changeText();
+        _lastClearText = _getOnlyNumbers(string: text) ?? '';
+        _lastIsNegative = _isNegative;
+        _lastStartWithSeparator = _startWithSeparator;
         return;
       }
     }
@@ -278,6 +297,9 @@ class CurrencyTextFieldController extends TextEditingController {
     // Quick zero check (empty or only zeros)
     if (_isAllZeros(clearText)) {
       _zeroValue(forceNegative: t.endsWith('-'), clean: _checkCleanZeroText(t));
+      _lastClearText = '0' * clearText.length;
+      _lastIsNegative = _isNegative;
+      _lastStartWithSeparator = _startWithSeparator;
       return;
     }
 
@@ -288,16 +310,34 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     // Switch from integer-mode to decimal-mode when user types the separator
-    if (!_startWithSeparator && t.endsWith(_decimalSymbol)) {
+    // do nothing if there are no decimals configured
+    if (_numberOfDecimals > 0 &&
+        !_startWithSeparator &&
+        t.endsWith(_decimalSymbol)) {
       _startWithSeparator = true;
       clearText = clearText + '0' * _numberOfDecimals;
     }
+    if (clearText == _lastClearText &&
+        _isNegative == _lastIsNegative &&
+        _startWithSeparator == _lastStartWithSeparator) {
+      if (text != _previewsText) {
+        text = _previewsText;
+        if (_forceCursorToEnd) {
+          final pos = TextPosition(offset: text.length);
+          if (!(selection.isCollapsed && selection.end == pos.offset)) {
+            selection = TextSelection.fromPosition(pos);
+          }
+        }
+      }
+      return;
+    }
 
     _value = _getDoubleValueFor(string: clearText);
-
     _clampValue();
-
     _changeText();
+    _lastClearText = _getOnlyNumbers(string: text) ?? '';
+    _lastIsNegative = _isNegative;
+    _lastStartWithSeparator = _startWithSeparator;
   }
 
   /// Force a value into the controller.
@@ -320,12 +360,17 @@ class CurrencyTextFieldController extends TextEditingController {
       _normalizeNegative();
       _clampValue();
       _changeText();
+      _lastClearText = _getOnlyNumbers(string: text) ?? '';
+      _lastIsNegative = _isNegative;
+      _lastStartWithSeparator = _startWithSeparator;
     }
   }
 
   /// Replace the current currency symbol with [newSymbol].
   /// If [resetValue] is `true`, the controller value is reset to 0.
   void replaceCurrencySymbol(String newSymbol, {bool resetValue = false}) {
+    if (!resetValue && newSymbol == _currencySymbol) return;
+
     _currencySymbol = newSymbol;
     _changeSymbolSeparator();
 
@@ -334,6 +379,9 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     _changeText();
+    _lastClearText = _getOnlyNumbers(string: text) ?? '';
+    _lastIsNegative = _isNegative;
+    _lastStartWithSeparator = _startWithSeparator;
   }
 
   void _normalizeNegative() {
@@ -365,6 +413,9 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     _changeText();
+    _lastClearText = _getOnlyNumbers(string: text) ?? '';
+    _lastIsNegative = _isNegative;
+    _lastStartWithSeparator = _startWithSeparator;
   }
 
   /// Replace the current [_minValue]. If [resetValue] is `true`, reset to 0.
@@ -378,6 +429,9 @@ class CurrencyTextFieldController extends TextEditingController {
     }
 
     _changeText();
+    _lastClearText = _getOnlyNumbers(string: text) ?? '';
+    _lastIsNegative = _isNegative;
+    _lastStartWithSeparator = _startWithSeparator;
   }
 
   /// Returns whether the current text indicates a negative input.
@@ -396,14 +450,15 @@ class CurrencyTextFieldController extends TextEditingController {
       _previewsText = '';
     } else {
       final masked = _applyMaskTo(value: _value);
+
       if (_isNegative && _negativeParentheses) {
-        final core = _currencyOnLeft
+        final core = _symbolIsPrefix
             ? '$_symbolSeparator$masked'
             : '$masked$_symbolSeparator';
         _previewsText = '($core)';
       } else {
         final sign = _isNegative ? '-' : '';
-        _previewsText = _currencyOnLeft
+        _previewsText = _symbolIsPrefix
             ? '$sign$_symbolSeparator$masked'
             : '$sign$masked$_symbolSeparator';
       }
@@ -411,18 +466,21 @@ class CurrencyTextFieldController extends TextEditingController {
     if (text != _previewsText) {
       text = _previewsText;
       final pos = TextPosition(offset: text.length);
-      selection = TextSelection.fromPosition(pos);
+      if (!(selection.isCollapsed && selection.end == pos.offset)) {
+        selection = TextSelection.fromPosition(pos);
+      }
     }
   }
 
   void _changeSymbolSeparator() {
     if (!_removeSymbol) {
-      _symbolSeparator = _currencyOnLeft
+      _symbolSeparator = _symbolIsPrefix
           ? (_currencySymbol + _currencySeparator)
           : (_currencySeparator + _currencySymbol);
     } else {
       _symbolSeparator = '';
     }
+    _symbolSepLen = _symbolSeparator.length;
   }
 
   /// Reset controller to 0. If [clean] is `true`, also clear the text.
@@ -468,10 +526,14 @@ class CurrencyTextFieldController extends TextEditingController {
     return true;
   }
 
-  // Western grouping: 3-3-3
+  // Western grouping: 3-3-3 (with fast path)
   String _formatIntWestern(String intStr) {
     final len = intStr.length;
     if (len <= 3) return intStr;
+    if (len <= 6) {
+      final cut = len - 3;
+      return '${intStr.substring(0, cut)}$_thousandSymbol${intStr.substring(cut)}';
+    }
     final sb = StringBuffer();
     for (int i = 0; i < len; i++) {
       if (i > 0 && (len - i) % 3 == 0) sb.write(_thousandSymbol);
@@ -480,12 +542,15 @@ class CurrencyTextFieldController extends TextEditingController {
     return sb.toString();
   }
 
-  // Indian grouping: 3-2-2-…
+  // Indian grouping: 3-2-2-… (with fast path)
   String _formatIntIndian(String intStr) {
     final len = intStr.length;
     if (len <= 3) return intStr;
     final prefix = intStr.substring(0, len - 3);
     final suffix = intStr.substring(len - 3);
+    if (prefix.length <= 2) {
+      return '$prefix$_thousandSymbol$suffix';
+    }
     final sb = StringBuffer();
     final plen = prefix.length;
     for (int i = 0; i < plen; i++) {
@@ -500,27 +565,23 @@ class CurrencyTextFieldController extends TextEditingController {
   String _applyMaskTo({required double value}) {
     final int decimals = _startWithSeparator ? _numberOfDecimals : 0;
     final double absVal = value.abs();
-    final int total = (absVal * (decimals == 0 ? 1 : _scale)).round();
-
-    int intPart, fracPart;
     if (decimals == 0) {
-      intPart = total;
-      fracPart = 0;
-    } else {
-      intPart = total ~/ _scaleInt;
-      fracPart = total % _scaleInt;
+      final intPart = absVal.round();
+      final raw = intPart.toString();
+      return _indianGrouping ? _formatIntIndian(raw) : _formatIntWestern(raw);
     }
+
+    final int total = (absVal * _scale).round();
+    final int intPart = total ~/ _scaleInt;
+    final int fracPart = total % _scaleInt;
 
     // Integer part with thousands grouping (western 3-3-3 or indian 3-2-2-…)
     final String raw = intPart.toString();
     final String intFormatted =
         _indianGrouping ? _formatIntIndian(raw) : _formatIntWestern(raw);
 
-    if (decimals > 0) {
-      final fracStr = fracPart.toString().padLeft(decimals, '0');
-      return '$intFormatted$_decimalSymbol$fracStr';
-    }
-    return intFormatted;
+    final fracStr = fracPart.toString().padLeft(decimals, '0');
+    return '$intFormatted$_decimalSymbol$fracStr';
   }
 
   /// Detect inputs like "1k", "2.5m", "3B".
@@ -528,9 +589,16 @@ class CurrencyTextFieldController extends TextEditingController {
   (double, double)? _matchAbbreviation(String raw) {
     final s = raw.trim();
     if (s.isEmpty) return null;
-    var cleaned = s.replaceFirst(_symbolSeparator, '').replaceAll(' ', '');
+    var cleaned = s;
+    if (_symbolSepLen > 0) {
+      if (_symbolIsPrefix && cleaned.startsWith(_symbolSeparator)) {
+        cleaned = cleaned.substring(_symbolSepLen);
+      } else if (!_symbolIsPrefix && cleaned.endsWith(_symbolSeparator)) {
+        cleaned = cleaned.substring(0, cleaned.length - _symbolSepLen);
+      }
+    }
+    cleaned = cleaned.replaceAll(' ', '');
     if (cleaned.isEmpty) return null;
-
     final last = cleaned.codeUnitAt(cleaned.length - 1);
     final isAlpha = (last >= 65 && last <= 90) || (last >= 97 && last <= 122);
     if (!isAlpha) return null;
@@ -542,10 +610,54 @@ class CurrencyTextFieldController extends TextEditingController {
     final baseStr = numberPart
         .replaceAll(_thousandSymbol, '')
         .replaceAll(_decimalSymbol, '.');
+
     final base = double.tryParse(baseStr);
     if (base == null) return null;
 
     return (base, mult);
+  }
+
+  //remove symbol (prefix/suffix) in O(1) without chained replace*
+  String _stripCurrencySymbol(String s) {
+    if (_symbolSepLen == 0 || s.isEmpty) return s;
+    if (_symbolIsPrefix) {
+      return s.startsWith(_symbolSeparator) ? s.substring(_symbolSepLen) : s;
+    } else {
+      return s.endsWith(_symbolSeparator)
+          ? s.substring(0, s.length - _symbolSepLen)
+          : s;
+    }
+  }
+
+  //single-pass removal of thousands and normalization of decimal to '.'
+  String _normalizeNumericString(String s) {
+    if (s.isEmpty) return s;
+    final out = StringBuffer();
+
+    int i = 0;
+    var decimalDone = false;
+
+    while (i < s.length) {
+      if (_thousandLen > 0 &&
+          i + _thousandLen <= s.length &&
+          s.substring(i, i + _thousandLen) == _thousandSymbol) {
+        i += _thousandLen;
+        continue;
+      }
+      if (!decimalDone &&
+          !_decimalIsDot &&
+          _decimalSymbol.isNotEmpty &&
+          i + _decimalSymbol.length <= s.length &&
+          s.substring(i, i + _decimalSymbol.length) == _decimalSymbol) {
+        out.write('.');
+        i += _decimalSymbol.length;
+        decimalDone = true;
+        continue;
+      }
+      out.write(s[i]);
+      i++;
+    }
+    return out.toString();
   }
 
   @override

@@ -14,6 +14,10 @@ void main() {
     controller.text = "1244";
     expect(controller.text, "R\$ 12,44");
     expect(controller.doubleValue, 12.44);
+
+    // Large BR value (long path, western grouping)
+    final cLarge = CurrencyTextFieldController(initDoubleValue: 1234567890.12);
+    expect(cLarge.text, 'R\$ 1.234.567.890,12');
   });
 
   test('constructor_allows_custom_symbols', () {
@@ -77,6 +81,21 @@ void main() {
     final controller =
         CurrencyTextFieldController(initIntValue: 195, currencyOnLeft: false);
     expect(controller.text, '1,95 R\$');
+
+    // Large value with symbol on right (western)
+    final cRightLarge = CurrencyTextFieldController(
+      currencyOnLeft: false,
+      initDoubleValue: 1234567890.12,
+    );
+    expect(cRightLarge.text, '1.234.567.890,12 R\$');
+
+    // Large value with symbol on right (indian grouping)
+    final cRightLargeIndian = CurrencyTextFieldController(
+      currencyOnLeft: false,
+      indianGrouping: true,
+      initDoubleValue: 1234567890.12,
+    );
+    expect(cRightLargeIndian.text, '1.23.45.67.890,12 R\$');
   });
 
   test('negative_values_respect_enableNegative_flag', () {
@@ -137,6 +156,11 @@ void main() {
     expect(controller.doubleValue, 19500.0);
     expect(controller.intValue, 19500);
     expect(controller.doubleTextWithoutCurrencySymbol, '19500');
+
+    // Large integer, no decimals (western long path)
+    final cNoDecLarge = CurrencyTextFieldController(
+        numberOfDecimals: 0, initDoubleValue: 1234567890);
+    expect(cNoDecLarge.text, 'R\$ 1.234.567.890');
   });
 
   test('max_value_clamps_on_forceValue', () {
@@ -251,6 +275,11 @@ void main() {
     expect(c.text, 'R\$ 1.234');
     c.text = '1234,';
     expect(c.text, 'R\$ 1.234,00');
+
+    // Large integer typed in integer-mode (no decimals until separator)
+    c.clear();
+    c.text = '1234567890';
+    expect(c.text, 'R\$ 1.234.567.890');
   });
 
   test('max_digits_accepts_exact_limit_and_blocks_above', () {
@@ -275,6 +304,10 @@ void main() {
       initDoubleValue: 1234567,
     );
     expect(c.text, 'R\$ 1,234,567.00');
+
+    // Even larger value with en-US symbols
+    c.forceValue(initDoubleValue: 1234567890.12);
+    expect(c.text, 'R\$ 1,234,567,890.12');
   });
 
   test('currency_on_right_with_remove_symbol_true_has_no_trailing_separator',
@@ -345,11 +378,23 @@ void main() {
       indianGrouping: true,
     );
     expect(c.text, 'R\$ 12.34.567,89');
+
+    // Large value (long path, indian grouping)
+    final cLargeIndian = CurrencyTextFieldController(
+      indianGrouping: true,
+      initDoubleValue: 1234567890.12,
+    );
+    expect(cLargeIndian.text, 'R\$ 1.23.45.67.890,12');
   });
 
   test('negative_parentheses_false_keeps_minus_sign', () {
     final c = CurrencyTextFieldController(initDoubleValue: -1234.56);
     expect(c.text, '-R\$ 1.234,56');
+
+    // Large negative (western long path)
+    final cNegLarge =
+        CurrencyTextFieldController(initDoubleValue: -9876543210.99);
+    expect(cNegLarge.text, '-R\$ 9.876.543.210,99');
   });
 
   test('negative_parentheses_true_wraps_in_parentheses', () {
@@ -403,10 +448,143 @@ void main() {
     );
     expect(c.text, '(195,00 R\$)');
   });
+
   test('indian_grouping_with_start_without_separator_typing_flow', () {
     final c = CurrencyTextFieldController(
         indianGrouping: true, startWithSeparator: false);
     c.text = '1234567';
     expect(c.text, 'R\$ 12.34.567'); // sem casas decimais
+
+    // Larger integer in integer-mode (indian)
+    c.clear();
+    c.text = '1234567890';
+    expect(c.text, 'R\$ 1.23.45.67.890'); // sem casas decimais
+  });
+
+  // Fast path: western grouping with <=6 digits
+  test('western_fast_path_for_six_digits', () {
+    final c = CurrencyTextFieldController();
+    c.text = '123456'; // should insert one thousand separator
+    expect(c.text, 'R\$ 1.234,56');
+  });
+
+  // Fast path: indian grouping when prefix length <=2
+  test('indian_fast_path_prefix_leq_2', () {
+    final c = CurrencyTextFieldController(indianGrouping: true);
+    c.text = '1234'; // 12.34
+    expect(c.text, 'R\$ 12,34');
+    c.clear();
+    c.text = '12345'; // inteiro=123 -> 123,45
+    expect(c.text, 'R\$ 123,45');
+  });
+
+  // Decimals == 0: early return, multiple values
+  test('no_decimals_early_return_formatting', () {
+    final c = CurrencyTextFieldController(numberOfDecimals: 0);
+    c.text = '0';
+    expect(c.text, ''); // showZeroValue default false
+    c.text = '123'; // 123
+    expect(c.text, 'R\$ 123');
+    c.text = '-1234567'; // negative
+    expect(c.text, '-R\$ 1.234.567');
+
+    // Indian grouping + no decimals (long path) via init
+    final ci = CurrencyTextFieldController(
+      indianGrouping: true,
+      numberOfDecimals: 0,
+      initDoubleValue: 1234567890,
+    );
+    expect(ci.text, 'R\$ 1.23.45.67.890');
+  });
+
+  // Decimals == 0 + startWithSeparator=false (integer-only typing)
+  test('no_decimals_with_start_without_separator', () {
+    final c = CurrencyTextFieldController(
+        numberOfDecimals: 0, startWithSeparator: false);
+    c.text = '123456';
+    expect(c.text, 'R\$ 123.456');
+  });
+
+  // Multi-char separators in normalization (e.g., thin space + custom)
+  test('doubleTextWithoutCurrencySymbol_with_multichar_separators', () {
+    final c = CurrencyTextFieldController(
+      currencySymbol: 'EUR',
+      currencySeparator: '\u00A0', // NBSP
+      thousandSymbol: "'", // Swiss style
+      decimalSymbol: '.',
+      initDoubleValue: 1234.5,
+    );
+    // EUR⎵1'234.50
+    expect(c.text, "EUR\u00A01'234.50");
+    expect(c.textWithoutCurrencySymbol, "1'234.50");
+    expect(c.doubleTextWithoutCurrencySymbol, '1234.50');
+  });
+
+  // replaceCurrencySymbol no-op when symbol is the same and no reset
+  test('replaceCurrencySymbol_noop_when_same_symbol', () {
+    final c = CurrencyTextFieldController(initDoubleValue: 12.34);
+    final before = c.text;
+    c.replaceCurrencySymbol('R\$'); // same as default and resetValue=false
+    expect(c.text, before);
+  });
+
+  // Short-circuit: setting same clearText should not change text/selection
+  test('short_circuit_when_clearText_unchanged', () {
+    final c = CurrencyTextFieldController();
+    c.text = '1244';
+    final beforeText = c.text;
+    final beforeSel = c.selection;
+    // Reassign an equivalent formatted input (same clearText after sanitization)
+    c.text = 'R\$ 12,44'; // same value as '1244' produces
+    expect(c.text, beforeText);
+    expect(c.selection.baseOffset, beforeSel.baseOffset);
+    expect(c.selection.extentOffset, beforeSel.extentOffset);
+  });
+
+  // Abbreviations with currency symbol present (prefix)
+  test('abbreviations_with_prefix_symbol', () {
+    final c = CurrencyTextFieldController(enableAbbreviations: true);
+    c.text = 'R\$ 2k';
+    expect(c.doubleValue, 2000.0);
+    expect(c.text, 'R\$ 2.000,00');
+  });
+
+  // Abbreviations with suffix symbol (currencyOnLeft=false)
+  test('abbreviations_with_suffix_symbol', () {
+    final c = CurrencyTextFieldController(
+        enableAbbreviations: true, currencyOnLeft: false);
+    c.text = '2k R\$';
+    expect(c.doubleValue, 2000.0);
+    expect(c.text, '2.000,00 R\$');
+  });
+
+  // Abbreviations + enableNegative=false should coerce to positive
+  test('abbreviations_respect_enableNegative_false', () {
+    final c = CurrencyTextFieldController(
+        enableAbbreviations: true, enableNegative: false);
+    c.text = '-2k';
+    expect(c.doubleValue, 2000.0);
+    expect(c.text, 'R\$ 2.000,00');
+  });
+  test('selection_not_reapplied_when_setting_same_text', () {
+    final c = CurrencyTextFieldController();
+    c.text = '1244'; // formata para 'R$ 12,44'
+    final beforeSel = c.selection;
+    final same = c.text; // exatamente o mesmo texto já formatado
+    c.text = same; // cai no early return (t == _previewsText)
+    expect(c.text, same);
+    expect(c.selection.baseOffset, beforeSel.baseOffset);
+    expect(c.selection.extentOffset, beforeSel.extentOffset);
+  });
+
+  test('abbreviations_with_dot_decimal_in_enUS_style', () {
+    final c = CurrencyTextFieldController(
+      enableAbbreviations: true,
+      decimalSymbol: '.',
+      thousandSymbol: ',',
+    );
+    c.text = '2.5m';
+    expect(c.doubleValue, 2500000.0);
+    expect(c.text, 'R\$ 2,500,000.00');
   });
 }
