@@ -1,8 +1,6 @@
 ## [5.0.0] - 2025-08-19
 - Added `enableAbbreviations` parameter to support K, M, B, T suffixes.
-- Added `showParenthesesForNegative` parameter to display negatives as (value).
-- Added `showSymbolOnRight` parameter to control symbol side.
-- Added `removeTrailingZeros` parameter to clean decimals when not needed.
+- Added `negativeParentheses` parameter to display negatives as (value).
 - Added `indianGrouping` parameter for Indian numbering style.
 - Optimized formatting performance for large numbers.
 - Improved internal comments and documentation.
