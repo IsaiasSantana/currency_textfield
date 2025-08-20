@@ -1,4 +1,4 @@
-## [5.0.0] - 2025-08-19
+## [5.0.0+1] - 2025-08-19
 - Added `enableAbbreviations` parameter to support K, M, B, T suffixes.
 - Added `negativeParentheses` parameter to display negatives as (value).
 - Added `indianGrouping` parameter for Indian numbering style.
